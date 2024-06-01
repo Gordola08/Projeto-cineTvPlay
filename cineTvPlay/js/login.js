@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
                       // Armazene os detalhes do usuário e a chave no localStorage
                       localStorage.setItem('usuario_logado', JSON.stringify({ user: data[key], key: key }));
                       alert('Login bem-sucedido!');
-                      window.location.href = '../cinetv/index.html';
+                      window.location.href = 'cinetv/index.html';
                       break;
                   }
               }
