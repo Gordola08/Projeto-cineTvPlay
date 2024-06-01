@@ -1,53 +1,47 @@
 document.addEventListener('DOMContentLoaded', function () {
-    fetch('https://cinetv-play-default-rtdb.firebaseio.com/usuario.json')
+  // Verificar se há um usuário logado
+  const usuarioLogadoJSON = localStorage.getItem('usuario_logado');
+
+  if (usuarioLogadoJSON) {
+      // Se houver um usuário logado, converter para objeto JSON
+      const usuarioLogado = JSON.parse(usuarioLogadoJSON);
+      console.log('Usuário logado:', usuarioLogado);
+      
+      // Exibir as informações do usuário logado na interface
+      const userInfoElement = document.getElementById('user-info');
+      if (userInfoElement) {
+          userInfoElement.innerHTML = `
+              <p>Nome do usuário: ${usuarioLogado.user.usuario}</p>
+              <p>Email: ${usuarioLogado.user.email}</p>
+              <p>Chave: ${usuarioLogado.key}</p>
+          `;
+      }
+  } else {
+      console.log('Nenhum usuário está logado.');
+      // Aqui você pode exibir uma mensagem ou redirecionar o usuário para a página de login
+  }
+
+  // Fetch dos usuários
+  fetch('https://cinetv-play-default-rtdb.firebaseio.com/usuario.json')
       .then(response => {
-        if (!response.ok) {
-          throw new Error('Erro na solicitação.');
-        }
-        return response.json();
+          if (!response.ok) {
+              throw new Error('Erro ao buscar usuários.');
+          }
+          return response.json();
       })
       .then(data => {
-        // Verificar se há dados do usuário no armazenamento local
-        const userId = localStorage.getItem('id_usuario');
-        if (!userId) {
-          // Se não houver ID de usuário, redirecionar para a página de login
-          window.location.href = 'login.html';
-          return;
-        }
-  
-        // Verificar se o usuário existe no banco de dados
-        const user = data[userId];
-        if (!user) {
-          console.error('Usuário não encontrado no banco de dados.');
-          return;
-        }
-  
-        // Exibir os detalhes do usuário no perfil
-        document.getElementById('user-name').textContent = user.nome_usuario;
-        document.getElementById('user-id').textContent = userId;
-  
-        // Se houver uma foto de perfil, definir o atributo src da imagem
-        if (user.fotoPerfil) {
-          document.getElementById('user-avatar').src = user.fotoPerfil;
-        } else {
-          console.warn('Foto de perfil não encontrada para o usuário.');
-        }
-  
-        // Se houver filmes favoritos, exibir na lista
-        if (user.filmesFavoritos && user.filmesFavoritos.length > 0) {
-          const favoriteMoviesList = document.getElementById('favorite-movies');
-          user.filmesFavoritos.forEach(movie => {
-            const li = document.createElement('li');
-            li.textContent = movie;
-            favoriteMoviesList.appendChild(li);
+          // Iterar sobre os dados para encontrar os usuários
+          Object.keys(data).forEach(key => {
+              const user = data[key];
+              const usuario = user.usuario;
+
+              // Aqui você pode fazer o que quiser com o ID e o nome do usuário
+              console.log('ID do usuário:', key);
+              console.log('Nome do usuário:', usuario);
           });
-        } else {
-          console.warn('Não há filmes favoritos para este usuário.');
-        }
       })
       .catch(error => {
-        console.error('Erro na solicitação:', error);
-        alert('Ocorreu um erro ao processar a solicitação. Por favor, tente novamente mais tarde.');
+          console.error('Erro ao buscar usuários:', error);
+          alert('Ocorreu um erro ao buscar usuários. Por favor, tente novamente mais tarde.');
       });
-  });
-  
+});

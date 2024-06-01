@@ -1,77 +1,61 @@
-var frm_register = document.getElementById('register-form');
+var usuarioInput = document.getElementById('usuario');
+var emailInput = document.getElementById('email');
+var senhaInput = document.getElementById('senha');
+var btn = document.getElementById('btn');
 
-frm_register.addEventListener('submit', function(e) {
+btn.addEventListener('click', function(e) {
     e.preventDefault();
-    
-    var usuario = document.getElementById('usuario').value;
-    var email = document.getElementById('email').value;
-    var senha = document.getElementById('senha').value;
-    
-    if (!usuario || !email || !senha) {
-        alert('Por favor, preencha todos os campos.');
-        return;
-    }
-
-    // Verificar se há dados salvos localmente
-    var dadosLocais = localStorage.getItem('dados_registro');
-    if (dadosLocais) {
-        // Se houver dados salvos, atualize a lista
-        var listaDados = JSON.parse(dadosLocais);
-        listaDados.push({ usuario: usuario, email: email, senha: senha });
-        localStorage.setItem('dados_registro', JSON.stringify(listaDados));
-    } else {
-        // Se não houver dados salvos, crie uma nova lista
-        var novoDado = [{ usuario: usuario, email: email, senha: senha }];
-        localStorage.setItem('dados_registro', JSON.stringify(novoDado));
-    }
-
-    // Limpar os campos após o envio
-    document.getElementById('usuario').value = '';
-    document.getElementById('email').value = '';
-    document.getElementById('senha').value = '';
-
-    alert('Seus dados foram salvos localmente. Eles serão enviados para o servidor mais tarde.');
-    
-    // Redirecionar para a página de login
-    window.location.href = '../index.html.html';
+    verificarUsuarioEmail();
 });
 
-// Função para enviar os dados salvos localmente para o servidor
-function enviarDadosParaServidor() {
-    var dadosLocais = localStorage.getItem('dados_registro');
-    if (dadosLocais) {
-        var listaDados = JSON.parse(dadosLocais);
+function verificarUsuarioEmail() {
+    fetch('https://cinetv-play-default-rtdb.firebaseio.com/usuario.json')
+        .then(response => response.json())
+        .then(data => {
+            var usuarioExistente = Object.values(data).some(item => item.usuario === usuarioInput.value);
+            var emailExistente = Object.values(data).some(item => item.email === emailInput.value);
 
-        listaDados.forEach(function(dados) {
-            fetch('https://cinetv-play-default-rtdb.firebaseio.com/usuario.json', {
-                method: 'POST',
-                body: JSON.stringify({
-                    usuario: dados.usuario,
-                    email: dados.email,
-                    senha: dados.senha
-                }),
-                headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                },
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro ao enviar dados para o servidor');
-                }
-                return response.json();
-            })
-            .then(json => {
-                console.log(json);
-                // Remover dados enviados do armazenamento local
-                listaDados = listaDados.filter(item => item !== dados);
-                localStorage.setItem('dados_registro', JSON.stringify(listaDados));
-            })
-            .catch(error => {
-                console.error('Erro ao enviar dados:', error);
-            });
+            if (usuarioExistente) {
+                alert('Este usuário já existe. Escolha outro nome de usuário.');
+            } else if (emailExistente) {
+                alert('Este email já está sendo usado. Escolha outro email.');
+            } else {
+                // Salvar dados no banco de dados local
+                salvarNoBancoLocal({
+                    usuario: usuarioInput.value,
+                    email: emailInput.value,
+                    senha: senhaInput.value
+                });
+                // Enviar dados para o servidor
+                enviar();
+            }
         });
-    }
 }
 
-// Chamar a função para enviar dados para o servidor
-enviarDadosParaServidor();
+function salvarNoBancoLocal(dados) {
+    var dadosLocais = localStorage.getItem('dados_registro');
+    var listaDados = dadosLocais ? JSON.parse(dadosLocais) : [];
+    listaDados.push(dados);
+    localStorage.setItem('dados_registro', JSON.stringify(listaDados));
+}
+
+function enviar() {
+    fetch('https://cinetv-play-default-rtdb.firebaseio.com/usuario.json', {
+        method: 'POST',
+        body: JSON.stringify({
+            usuario: usuarioInput.value,
+            email: emailInput.value,
+            senha: senhaInput.value,
+        }),
+        headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+        },
+    })
+        .then(response => response.json())
+        .then(json => {
+            console.log(json);
+            setTimeout(function () {
+                window.location.href = '../index.html';
+            }, 2000);
+        });
+}
