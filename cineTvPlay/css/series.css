@@ -42,3 +42,53 @@
   footer {
     background-color: #1e1e1e;
   }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    width: 120px;
+    background-color: #ff000090;
+    overflow-y: auto;
+    transition: transform 0.3s ease-in-out;
+    padding-top: 3.5rem;
+  }
+  
+  .sidebar-heading {
+    padding: 1rem;
+    font-size: 1.5rem;
+    color: #fff;
+  }
+  
+  .list-group-item {
+    background-color: transparent;
+    border: none;
+    color: #fff;
+    padding: 1rem;
+  }
+  
+  .list-group-item:hover {
+    background-color: #2c2c2c;
+  }
+  
+  .list-group-item.active {
+    background-color: #4c4c4c;
+  }
+  
+  @media (max-width: 992px) {
+    .sidebar {
+      transform: translateX(-100%);
+      display: none; /* Para ocultar o menu lateral em dispositivos móveis inicialmente */
+    }
+  
+    .sidebar.active {
+      transform: translateX(0);
+      display: block; /* Para exibir o menu lateral quando estiver aberto */
+    }
+  
+    .container {
+      margin-left: 0;
+    }
+  }
