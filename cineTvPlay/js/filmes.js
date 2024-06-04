@@ -8,31 +8,19 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchSeries();
 });
 
-async function fetchMovies() {
-  try {
-    let movies = [];
-    for (let page = 1; page <= 5; page++) { // 5 pages, 20 movies per page = 100 movies
-      const response = await fetch(`${apiUrl}/movie/popular?api_key=${apiKey}&language=pt-BR&page=${page}`);
-      const data = await response.json();
-      movies = movies.concat(data.results);
-    }
-    displayContent(movies, 'movies-container');
-  } catch (error) {
-    console.error('Erro ao buscar filmes:', error);
-  }
-}
-
-async function fetchSeries() {
-  try {
-    let series = [];
-    for (let page = 1; page <= 5; page++) { // 5 pages, 20 series per page = 100 series
-      const response = await fetch(`${apiUrl}/tv/popular?api_key=${apiKey}&language=pt-BR&page=${page}`);
-      const data = await response.json();
-      series = series.concat(data.results);
-    }
-    displayContent(series, 'series-container');
-  } catch (error) {
-    console.error('Erro ao buscar séries:', error);
+function fetchMovies() {
+  let filmesHtml = []
+  for (let page = 1; page <= 5; page++) {
+    fetch(`${apiUrl}/movie/popular?api_key=${apiKey}&language=pt-BR&page=${page}`, {
+      method: 'GET',
+    })
+      .then(response => response.json())
+      .then(filmes => {
+        for (const key in filmes) {
+          filmesHtml = filmesHtml.concat(filmes.results);
+        }
+        displayContent(filmesHtml, 'movies-container')
+      })
   }
 }
 
@@ -48,7 +36,6 @@ function displayContent(items, containerId) {
         <div class="card-body">
           <h5 class="card-title">${item.title || item.name}</h5>
           <button onclick="watchVideo('${item.id}')" class="btn btn-primary">Assistir</button>
-          <p>ID do TMDb: ${item.id}</p>
         </div>
       </div>
     `;

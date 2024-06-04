@@ -9,36 +9,47 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function fetchMovies() {
-  let filmesHtml = []
+  let filmesHtml = [];
+  let allMovies = [];
+
   for (let page = 1; page <= 5; page++) {
     fetch(`${apiUrl}/movie/popular?api_key=${apiKey}&language=pt-BR&page=${page}`, {
       method: 'GET',
     })
       .then(response => response.json())
       .then(filmes => {
-        for (const key in filmes) {
-          filmesHtml = filmesHtml.concat(filmes.results);
+        allMovies = allMovies.concat(filmes.results);
+
+        
+        if (allMovies.length >= 15 || page === 5) {
+          filmesHtml = allMovies.slice(0, 15);
+          displayContent(filmesHtml, 'movies-container');
         }
-        displayContent(filmesHtml, 'movies-container')
-      })
+      });
   }
 }
 
+
 function fetchSeries() {
-  let seriesHTML = []
+  let seriesHTML = [];
+  let allSeries = []; 
+
   for (let page = 1; page <= 5; page++) {
     fetch(`${apiUrl}/tv/popular?api_key=${apiKey}&language=pt-BR&page=${page}`, {
       method: 'GET',
     })
       .then(response => response.json())
-      .then(filmes => {
-        for (const key in filmes) {
-          seriesHTML = seriesHTML.concat(filmes.results);
+      .then(series => {
+        allSeries = allSeries.concat(series.results);
+
+        if (allSeries.length >= 15 || page === 5) {
+          seriesHTML = allSeries.slice(0, 15); 
+          displayContent(seriesHTML, 'series-container');
         }
-        displayContent(seriesHTML, 'series-container')
-      })
+      });
   }
 }
+
 
 function displayContent(items, containerId) {
   const container = document.getElementById(containerId);
@@ -52,7 +63,6 @@ function displayContent(items, containerId) {
         <div class="card-body">
           <h5 class="card-title">${item.title || item.name}</h5>
           <button onclick="watchVideo('${item.id}')" class="btn btn-primary">Assistir</button>
-          <p>ID do TMDb: ${item.id}</p>
         </div>
       </div>
     `;

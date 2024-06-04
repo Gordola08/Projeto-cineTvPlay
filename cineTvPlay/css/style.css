@@ -15,7 +15,7 @@
   top: 0;
   width: 100%;
   z-index: 1000;
-  background-color: rgba(247, 0, 0, 0.5); /* Transparente */
+  background-color: rgba(0, 0, 0, 0); /* Transparente */
 }
 .container {
   padding-top: 100px; /* Espaço para a navbar fixa */
@@ -52,7 +52,7 @@ footer {
   bottom: 0;
   z-index: 1000;
   width: 200px;
-  background-color: #ff000090;
+  background-color: #00000090;
   overflow-y: auto;
   transition: transform 0.3s ease-in-out;
   padding-top: 3.5rem;
@@ -72,11 +72,11 @@ footer {
 }
 
 .list-group-item:hover {
-  background-color: #ff000096;
+  background-color: #00000090;
 }
 
 .list-group-item.active {
-  background-color: #ff00009e;
+  background-color: #00000090;
 }
 
 @media (max-width: 992px) {

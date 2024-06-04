@@ -8,23 +8,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-async function fetchSeries() {
-  try {
-    let series = [];
-    for (let page = 1; page <= 5; page++) { // 5 pages, 20 series per page = 100 series
-      const response = await fetch(`${apiUrl}/tv/popular?api_key=${apiKey}&language=pt-BR&page=${page}`);
-      const data = await response.json();
-      series = series.concat(data.results);
-    }
-    // Adicionando manualmente o Flash à lista de séries
-    const flash = {
-      id: 60735,
-      title: "The Flash"
-    };
-    series.push(flash);
-    displayContent(series, 'series-container');
-  } catch (error) {
-    console.error('Erro ao buscar séries:', error);
+function fetchSeries() {
+  let seriesHTML = []
+  for (let page = 1; page <= 5; page++) {
+    fetch(`${apiUrl}/tv/popular?api_key=${apiKey}&language=pt-BR&page=${page}`, {
+      method: 'GET',
+    })
+      .then(response => response.json())
+      .then(filmes => {
+        for (const key in filmes) {
+          seriesHTML = seriesHTML.concat(filmes.results);
+        }
+        displayContent(seriesHTML, 'series-container')
+      })
   }
 }
 
@@ -40,7 +36,6 @@ function displayContent(items, containerId) {
         <div class="card-body">
           <h5 class="card-title">${item.title || item.name}</h5>
           <button onclick="watchVideo('${item.id}')" class="btn btn-primary">Assistir</button>
-          <p>ID do TMDb: ${item.id}</p>
         </div>
       </div>
     `;
