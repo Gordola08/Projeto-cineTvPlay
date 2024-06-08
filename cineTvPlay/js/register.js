@@ -1,6 +1,7 @@
 var usuarioInput = document.getElementById('usuario');
 var emailInput = document.getElementById('email');
 var senhaInput = document.getElementById('senha');
+var avatarInput = document.getElementById('avatar');
 var btn = document.getElementById('btn');
 
 btn.addEventListener('click', function(e) {
@@ -20,42 +21,48 @@ function verificarUsuarioEmail() {
             } else if (emailExistente) {
                 alert('Este email já está sendo usado. Escolha outro email.');
             } else {
-                // Salvar dados no banco de dados local
-                salvarNoBancoLocal({
-                    usuario: usuarioInput.value,
-                    email: emailInput.value,
-                    senha: senhaInput.value
-                });
-                // Enviar dados para o servidor
-                enviar();
+                // Ler o arquivo de imagem selecionado pelo usuário
+                var file = avatarInput.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var dados = {
+                            usuario: usuarioInput.value,
+                            email: emailInput.value,
+                            senha: senhaInput.value,
+                            avatar: e.target.result // Base64 da imagem selecionada
+                        };
+                        salvarNoFirebase(dados);
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    var dados = {
+                        usuario: usuarioInput.value,
+                        email: emailInput.value,
+                        senha: senhaInput.value
+                    };
+                    salvarNoFirebase(dados);
+                }
             }
         });
 }
 
-function salvarNoBancoLocal(dados) {
-    var dadosLocais = localStorage.getItem('dados_registro');
-    var listaDados = dadosLocais ? JSON.parse(dadosLocais) : [];
-    listaDados.push(dados);
-    localStorage.setItem('dados_registro', JSON.stringify(listaDados));
-}
-
-function enviar() {
+function salvarNoFirebase(dados) {
     fetch('https://cinetv-play-default-rtdb.firebaseio.com/usuario.json', {
         method: 'POST',
-        body: JSON.stringify({
-            usuario: usuarioInput.value,
-            email: emailInput.value,
-            senha: senhaInput.value,
-        }),
+        body: JSON.stringify(dados),
         headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-        },
+            'Content-type': 'application/json'
+        }
     })
-        .then(response => response.json())
-        .then(json => {
-            console.log(json);
-            setTimeout(function () {
-                window.location.href = '../index.html';
-            }, 2000);
-        });
+    .then(response => response.json())
+    .then(json => {
+        console.log(json);
+        setTimeout(function () {
+            window.location.href = '../index.html';
+        }, 2000);
+    })
+    .catch(error => {
+        console.error('Erro ao salvar no Firebase:', error);
+    });
 }

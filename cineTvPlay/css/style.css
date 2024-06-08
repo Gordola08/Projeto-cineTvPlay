@@ -1,22 +1,20 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
 .movie-card {
   background-color: #1e1e1e;
   border: none;
 }
+
 .movie-card img {
   height: 200px;
   object-fit: cover;
 }
-.navbar-brand {
-  font-size: 1.8rem;
-  font-weight: bold;
-}
-.navbar {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-  background-color: rgba(0, 0, 0, 0); /* Transparente */
-}
+
 .container {
   padding-top: 100px; /* Espaço para a navbar fixa */
   margin-top: 2px; /* Adicionando uma margem superior para separar do navbar */
@@ -27,20 +25,25 @@
   border: none;
   transition: transform 0.3s, box-shadow 0.3s;
 }
+
 .card:hover {
   transform: translateY(-10px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
+
 .card-title {
   color: #ffcc00;
 }
+
 .btn-primary {
   background-color: #ffcc00;
   border: none;
 }
+
 .btn-primary:hover {
   background-color: #e6b800;
 }
+
 footer {
   background-color: #1e1e1e;
 }
@@ -99,3 +102,37 @@ footer {
   margin-right: 100px; /* Altere este valor conforme necessário para obter a distância desejada */
 }
 
+.carousel-inner {
+  display: flex;
+}
+
+.carousel-item {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.card {
+  flex: 1;
+  margin: 5px;
+}
+
+.card img {
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 576px) {
+  .carousel-inner {
+    flex-wrap: nowrap;
+  }
+
+  .carousel-item {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .card {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+}
