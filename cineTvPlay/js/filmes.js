@@ -78,14 +78,34 @@ function displayContent(items, containerId) {
     card.innerHTML = `
       <div class="card movie-card">
         <img src="${imageBaseUrl}${item.poster_path}" class="card-img-top" alt="${item.title || item.name}">
-        <div class="card-body">
-          <h5 class="card-title">${item.title || item.name}</h5>
-          <button onclick="watchVideo('${item.id}')" class="btn btn-primary">Assistir</button>
+        <div class="card-overlay">
+          <div class="card-body">
+            <h5 class="card-title">${item.title || item.name}</h5>
+            <p class="card-text">Avaliação: ${item.vote_average}</p>
+            ${item.runtime ? `<p class="card-text">Duração: ${item.runtime} min</p>` : ''}
+            <button onclick="watchVideo('${item.id}')" class="btn btn-primary"><span class="bi bi-play-circle"></span> Assistir</button>
+          </div>
         </div>
       </div>
     `;
+
+    card.addEventListener('mouseover', () => {
+      card.querySelector('.card-overlay').style.display = 'block';
+    });
+
+    card.addEventListener('mouseout', () => {
+      card.querySelector('.card-overlay').style.display = 'none';
+    });
+
     container.appendChild(card);
   });
+
+  // Verificação para dispositivos móveis
+  if (window.innerWidth < 768) {
+    container.querySelectorAll('.card-overlay').forEach(overlay => {
+      overlay.style.display = 'none'; // Oculta a sobreposição
+    });
+  }
 }
 
 function watchVideo(id) {
