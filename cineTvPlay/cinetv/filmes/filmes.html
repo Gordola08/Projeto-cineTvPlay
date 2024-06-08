@@ -18,51 +18,82 @@
   <!-- Navbar -->
   <nav class="navbar">
     <div class="container-fluid">
-      <img src="../../img/logoCineTvPlay.png" alt="cineTv Play Logo" class="d-block d-md-none" style="width: 150px; height: auto;">
+      <img src="../../img/logoCineTvPlay.png" alt="cineTv Play Logo" class="d-block d-md-none"
+        style="width: 150px; height: auto;">
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
     </div>
-  </nav>  
+  </nav>
 
- <!-- Menu lateral -->
- <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
-  <div class="position-sticky">
-    <h3 class="sidebar-heading">
-      <img src="../../img/logoCineTvPlay.png" alt="cineTv Play Logo" style="width: 150px; height: auto;">
-    </h3>
-    <div class="list-group list-group-flush">
-      <a href="../index.html" class="list-group-item list-group-item-action bg-dark text-white">
-        <i class="bi bi-house-door"></i> Home
-      </a>
-      <a href="../serie/serie.html" class="list-group-item list-group-item-action bg-dark text-white">
-        <i class="bi bi-tv"></i> Séries
-      </a>
-      <a href="../perfil/perfil.html" class="list-group-item list-group-item-action bg-dark text-white">
-        <i class="bi bi-person"></i> Perfil
-      </a>
-      <a href="../../index.html" class="list-group-item list-group-item-action bg-dark text-white">
-        <i class="bi bi-box-arrow-right"></i> sair
-      </a>
+  <!-- Menu lateral -->
+  <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+    <div class="position-sticky">
+      <h3 class="sidebar-heading">
+        <img src="../../img/logoCineTvPlay.png" alt="cineTv Play Logo" style="width: 150px; height: auto;">
+      </h3>
+      <div class="list-group list-group-flush">
+        <a href="../index.html" class="list-group-item list-group-item-action bg-dark text-white">
+          <i class="bi bi-house-door"></i> Home
+        </a>
+        <a href="../serie/serie.html" class="list-group-item list-group-item-action bg-dark text-white">
+          <i class="bi bi-tv"></i> Séries
+        </a>
+        <a href="../perfil/perfil.html" class="list-group-item list-group-item-action bg-dark text-white">
+          <i class="bi bi-person"></i> Perfil
+        </a>
+        <a href="../../index.html" class="list-group-item list-group-item-action bg-dark text-white">
+          <i class="bi bi-box-arrow-right"></i> sair
+        </a>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
   <!-- Main Content -->
   <main class="col-md-10 col-lg-10 ms-md-auto px-md-4">
-      <div class="input-group mb-1">
-    <input type="text" id="searchInput" class="form-control" placeholder="Buscar filmes..." aria-label="Buscar filmes" aria-describedby="button-addon2">
-    <button class="btn btn-outline-secondary" type="button" id="button-addon2">Buscar</button>
-  </div>
-  <div class="container mt-5">
-    <h1 class="text-center mb-4">Filmes</h1>
-    <!-- Filmes Section -->
-    <div id="movies-container" class="row">
-      <!-- Filmes serão inseridos aqui -->
+    <div class="input-group mb-1">
+      <input type="text" id="searchInput" class="form-control" placeholder="Buscar filmes..." aria-label="Buscar filmes"
+        aria-describedby="button-addon2">
+      <button class="btn btn-outline-secondary" type="button" id="button-addon2">Buscar</button>
     </div>
+
+    <div class="input-group mb-3">
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+        aria-expanded="false" id="dropdownCategory">
+        Categorias
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownCategory" id="categoryMenu">
+        <li><a class="dropdown-item" href="#" data-category="28">Ação</a></li>
+        <li><a class="dropdown-item" href="#" data-category="12">Aventura</a></li>
+        <li><a class="dropdown-item" href="#" data-category="16">Desenho</a></li>
+        <li><a class="dropdown-item" href="#" data-category="18">Drama</a></li>
+        <li><a class="dropdown-item" href="#" data-category="35">Comédia</a></li>
+        <!-- Adicione mais categorias aqui se necessário -->
+      </ul>
+    </div>
+
+    <div class="container mt-5">
+      <h1 class="text-center mb-4">Filmes</h1>
+      <!-- Filmes Section -->
+      <div id="movies-container" class="row">
+        <!-- Filmes serão inseridos aqui -->
+      </div>
+    </div>
+
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item">
+          <a class="page-link" href="#" id="prevPage">Anterior</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#" id="nextPage">Próxima</a>
+        </li>
+      </ul>
+    </nav>
   </div>
-</main>
+
+  </main>
 
   <!-- Footer -->
   <footer class="bg-dark text-center text-white py-4 mt-5">
