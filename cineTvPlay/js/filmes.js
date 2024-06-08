@@ -36,8 +36,11 @@ function setupDropdowns() {
   categoryMenu.querySelectorAll('.dropdown-item').forEach(item => {
     item.addEventListener('click', event => {
       event.preventDefault();
+      const categoryName = event.target.textContent;
+      document.getElementById('dropdownMenuButton').textContent = categoryName;
       const categoryId = event.target.getAttribute('data-category');
-      fetchMovies(categoryId);
+      const type = event.target.getAttribute('data-type');
+      fetchSeries(categoryId, type, 1);
     });
   });
 }
@@ -120,11 +123,16 @@ function setupDropdowns() {
   categoryMenu.querySelectorAll('.dropdown-item').forEach(item => {
     item.addEventListener('click', event => {
       event.preventDefault();
+      const categoryName = event.target.textContent; // Obtém o nome da categoria clicada
+      const dropdownButton = document.getElementById('dropdownMenuButton');
+      dropdownButton.textContent = categoryName; // Atualiza o texto do botão de dropdown
       const categoryId = event.target.getAttribute('data-category');
       fetchMovies(categoryId);
     });
   });
 }
+
+
 
 
 function setupPagination() {
