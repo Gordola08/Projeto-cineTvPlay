@@ -8,8 +8,33 @@ document.addEventListener("DOMContentLoaded", function () {
     const seriesId = urlParams.get("id");
     const type = urlParams.get("type"); // 'tv'
 
+    const seriesIdElement = document.getElementById('seriesId');
+    if (seriesIdElement) {
+        seriesIdElement.value = seriesId;
+    } else {
+        console.error('Elemento com id "seriesId" não encontrado.');
+    }
+
     if (seriesId && type === 'tv') {
         fetchDetails(seriesId, type);
+    }
+
+    const favoriteButton = document.getElementById('favoriteButton');
+    if (favoriteButton) {
+        favoriteButton.addEventListener('click', function () {
+            const seriesTitle = document.getElementById('title').textContent;
+            const posterPath = document.getElementById('poster').src;
+            const seriesOverview = document.getElementById('overview').textContent;
+            const seriesGenre = document.getElementById('genre').textContent;
+            const seriesRuntime = document.getElementById('runtime').textContent;
+            const seriesReleaseDate = document.getElementById('release-date').textContent;
+            const seasonSelected = document.getElementById('seasonSelect').value;
+            const episodeSelected = document.getElementById('episodeSelect').value;
+
+            saveFavoriteSeries(seriesId, seriesTitle, posterPath, seriesOverview, seriesGenre, seriesRuntime, seriesReleaseDate, seasonSelected, episodeSelected);
+        });
+    } else {
+        console.error('Elemento com id "favoriteButton" não encontrado.');
     }
 });
 
@@ -23,7 +48,6 @@ async function fetchDetails(id, type) {
         displayDetails(data, type);
     } catch (error) {
         console.error("Erro ao buscar detalhes:", error);
-        // Exiba uma mensagem de erro na interface, se necessário
     }
 }
 
@@ -35,7 +59,6 @@ function displayDetails(data, type) {
     document.getElementById("runtime").textContent = `${data.episode_run_time[0]} min`;
     document.getElementById("release-date").textContent = data.first_air_date;
 
-    // Preencher select de temporadas
     const seasonSelect = document.getElementById("seasonSelect");
     seasonSelect.innerHTML = '';
     for (let i = 1; i <= data.number_of_seasons; i++) {
@@ -45,7 +68,10 @@ function displayDetails(data, type) {
         seasonSelect.appendChild(option);
     }
 
-    // Chamar fetchEpisodes com a primeira temporada
+    seasonSelect.addEventListener('change', function () {
+        fetchEpisodes(this.value);
+    });
+
     fetchEpisodes(1);
 }
 
@@ -55,9 +81,9 @@ async function fetchEpisodes(seasonNumber) {
         console.error('Elemento com id "seriesId" não encontrado.');
         return;
     }
-    
+
     const seriesId = seriesIdElement.value;
-    
+
     try {
         const response = await fetch(`${apiUrl}/tv/${seriesId}/season/${seasonNumber}?api_key=${apiKey}&language=pt-BR`);
         if (!response.ok) {
@@ -70,7 +96,6 @@ async function fetchEpisodes(seasonNumber) {
     }
 }
 
-
 function displayEpisodes(episodes) {
     const episodeSelect = document.getElementById("episodeSelect");
     episodeSelect.innerHTML = '';
@@ -80,76 +105,45 @@ function displayEpisodes(episodes) {
         option.textContent = `Episódio ${episode.episode_number}: ${episode.name}`;
         episodeSelect.appendChild(option);
     });
+
+    // Selecionar o primeiro episódio por padrão
+    if (episodes.length > 0) {
+        episodeSelect.value = episodes[0].episode_number;
+        displayEpisodeVideo(episodes[0].season_number, episodes[0].episode_number);
+    }
+
+    episodeSelect.addEventListener('change', function () {
+        const selectedEpisode = episodes.find(ep => ep.episode_number == this.value);
+        displayEpisodeVideo(selectedEpisode.season_number, selectedEpisode.episode_number);
+    });
 }
 
-document.getElementById("seasonSelect").addEventListener("change", function () {
-    const seasonNumber = this.value;
-    fetchEpisodes(seasonNumber);
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    const seriesId = urlParams.get('id');
-    const seriesType = urlParams.get('type');
-
-    // Verifica se o elemento com id 'seriesId' existe antes de atribuir seu valor
+function displayEpisodeVideo(seasonNumber, episodeNumber) {
     const seriesIdElement = document.getElementById('seriesId');
-    if (seriesIdElement) {
-        seriesIdElement.value = seriesId;
-    } else {
+    if (!seriesIdElement) {
         console.error('Elemento com id "seriesId" não encontrado.');
+        return;
     }
 
-    // Verifica se o elemento com id 'seasonSelect' existe antes de adicionar o evento onchange
-    const seasonSelect = document.getElementById('seasonSelect');
-    if (seasonSelect) {
-        seasonSelect.addEventListener('change', function () {
-            fetchEpisodes(this.value);
-        });
+    const seriesId = seriesIdElement.value;
+    const videoUrl = `${embedderBaseUrl}${seriesId}/${seasonNumber}-${episodeNumber}`;
+    const videoIframe = document.getElementById('videoIframe');
+    if (videoIframe) {
+        videoIframe.src = videoUrl;
     } else {
-        console.error('Elemento com id "seasonSelect" não encontrado.');
+        console.error('Elemento com id "videoIframe" não encontrado.');
     }
-
-    // Função para salvar série como favorita
-    const favoriteButton = document.getElementById('favoriteButton');
-    if (favoriteButton) {
-        favoriteButton.addEventListener('click', function () {
-            // Lógica para buscar os detalhes da série
-            const seriesTitle = document.getElementById('title').textContent;
-            const posterPath = document.getElementById('poster').src;
-            const seriesOverview = document.getElementById('overview').textContent;
-            const seriesGenre = document.getElementById('genre').textContent;
-            const seriesRuntime = document.getElementById('runtime').textContent;
-            const seriesReleaseDate = document.getElementById('release-date').textContent;
-            const seasonSelected = document.getElementById('seasonSelect').value;
-            const episodeSelected = document.getElementById('episodeSelect').value;
-
-            // Chamada para salvar a série como favorita
-            saveFavoriteSeries(seriesId, seriesTitle, posterPath, seriesOverview, seriesGenre, seriesRuntime, seriesReleaseDate, seasonSelected, episodeSelected);
-        });
-    } else {
-        console.error('Elemento com id "favoriteButton" não encontrado.');
-    }
-
-    // Verifica se há um ID de série válido e busca os detalhes se for uma série de TV
-    if (seriesId && seriesType === 'tv') {
-        fetchDetails(seriesId, seriesType);
-    }
-});
-
-
+}
 
 function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeSelected) {
     let favorites = JSON.parse(localStorage.getItem('favoriteSeries')) || [];
 
-    // Verifica se a série já está salva como favorita
     const existingSeries = favorites.find(series => series.id === seriesId);
     if (existingSeries) {
         alert('Esta série já está salva como favorita!');
         return;
     }
 
-    // Adiciona a série aos favoritos
     favorites.push({
         id: seriesId,
         title: seriesTitle,
@@ -162,29 +156,38 @@ function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, 
         episode: episodeSelected
     });
 
-    // Salva a lista atualizada de favoritos no localStorage
     localStorage.setItem('favoriteSeries', JSON.stringify(favorites));
     alert('Série salva como favorita!');
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtn = document.querySelector('.navbar-toggler');
+    const sidebar = document.querySelector('.sidebar');
 
-async function fetchEpisodes(seasonNumber) {
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', function () {
+            sidebar.classList.toggle('active');
+        });
+    } else {
+        console.error('Elemento .navbar-toggler ou .sidebar não encontrado.');
+    }
+});
+
+
+function displayEpisodeVideo(seasonNumber, episodeNumber) {
     const seriesIdElement = document.getElementById('seriesId');
     if (!seriesIdElement) {
         console.error('Elemento com id "seriesId" não encontrado.');
         return;
     }
-    
+
     const seriesId = seriesIdElement.value;
-    
-    try {
-        const response = await fetch(`${apiUrl}/tv/${seriesId}/season/${seasonNumber}?api_key=${apiKey}&language=pt-BR`);
-        if (!response.ok) {
-            throw new Error('Erro ao buscar os episódios da temporada.');
-        }
-        const data = await response.json();
-        displayEpisodes(data.episodes);
-    } catch (error) {
-        console.error('Erro ao buscar episódios:', error);
+    const videoUrl = `${embedderBaseUrl}${seriesId}/${seasonNumber}-${episodeNumber}`;
+    console.log(`Loading video from URL: ${videoUrl}`); // Debug log
+    const videoIframe = document.getElementById('videoIframe');
+    if (videoIframe) {
+        videoIframe.src = videoUrl;
+    } else {
+        console.error('Elemento com id "videoIframe" não encontrado.');
     }
 }

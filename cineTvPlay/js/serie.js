@@ -14,6 +14,21 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDropdowns();
 });
 
+function setupDropdowns() {
+  const categoryMenu = document.getElementById('categoryMenu');
+
+  categoryMenu.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', event => {
+      event.preventDefault();
+      const categoryName = event.target.textContent;
+      document.getElementById('dropdownMenuButton').textContent = categoryName;
+      const categoryId = event.target.getAttribute('data-category');
+      const type = event.target.getAttribute('data-type');
+      fetchMovies(categoryId, 1);
+    });
+  });
+}
+
 function fetchSeries(categoryId = null, type = null, page = 1) {
   currentCategory = categoryId;
   currentType = type;
@@ -68,6 +83,15 @@ function displayContent(items, containerId) {
         </div>
       </div>
     `;
+
+    card.addEventListener('mouseover', () => {
+      card.querySelector('.card-overlay').style.display = 'block';
+    });
+
+    card.addEventListener('mouseout', () => {
+      card.querySelector('.card-overlay').style.display = 'none';
+    });
+
     container.appendChild(card);
   });
 
