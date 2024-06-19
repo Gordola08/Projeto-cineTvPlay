@@ -1,7 +1,6 @@
 const apiKey = 'f929634d7d1ae9a3e4b1215ec7d38336';
 const apiUrl = 'https://api.themoviedb.org/3';
 const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
-const embedderBaseUrl = 'https://embedder.net/e/';
 
 let currentPage = 1;
 
@@ -40,7 +39,7 @@ function setupDropdowns() {
       document.getElementById('dropdownMenuButton').textContent = categoryName;
       const categoryId = event.target.getAttribute('data-category');
       const type = event.target.getAttribute('data-type');
-      fetchSeries(categoryId, type, 1);
+      fetchMovies(categoryId, 1);
     });
   });
 }
@@ -86,7 +85,7 @@ function displayContent(items, containerId) {
             <h5 class="card-title">${item.title || item.name}</h5>
             <p class="card-text">Avaliação: ${item.vote_average}</p>
             ${item.runtime ? `<p class="card-text">Duração: ${item.runtime} min</p>` : ''}
-            <button onclick="watchVideo('${item.id}')" class="btn btn-primary"><span class="bi bi-play-circle"></span> Assistir</button>
+            <button onclick="viewMovieDetails('${item.id}', 'movie')" class="btn btn-danger"><span class="bi bi-info-circle"></span> Ver Detalhes</button>
           </div>
         </div>
       </div>
@@ -111,29 +110,10 @@ function displayContent(items, containerId) {
   }
 }
 
-function watchVideo(id) {
-  const embedUrl = `${embedderBaseUrl}${id}`;
-  window.open(embedUrl, '_blank');
+function viewMovieDetails(movieId, type) {
+  // Redireciona para a página de detalhes do filme com o ID do filme na query string
+  window.location.href = `../destaque/detalhes.html?id=${movieId}&type=${type}`;
 }
-
-
-function setupDropdowns() {
-  const categoryMenu = document.getElementById('categoryMenu');
-
-  categoryMenu.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', event => {
-      event.preventDefault();
-      const categoryName = event.target.textContent; // Obtém o nome da categoria clicada
-      const dropdownButton = document.getElementById('dropdownMenuButton');
-      dropdownButton.textContent = categoryName; // Atualiza o texto do botão de dropdown
-      const categoryId = event.target.getAttribute('data-category');
-      fetchMovies(categoryId);
-    });
-  });
-}
-
-
-
 
 function setupPagination() {
   const prevPageButton = document.getElementById('prevPage');
@@ -151,7 +131,6 @@ function setupPagination() {
     fetchMovies(null, currentPage);
   });
 }
-
 
 document.addEventListener("DOMContentLoaded", function () {
   const toggleBtn = document.querySelector('.navbar-toggler');

@@ -1,7 +1,6 @@
 const apiKey = 'f929634d7d1ae9a3e4b1215ec7d38336';
 const apiUrl = 'https://api.themoviedb.org/3';
 const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
-const embedderBaseUrl = 'https://embedder.net/e/';
 
 let moviesFetched = false;
 let seriesFetched = false;
@@ -73,7 +72,7 @@ function displayContent(items, containerId, carouselId) {
         <img src="${imageBaseUrl}${item.poster_path}" class="card-img-top" alt="${item.title || item.name}">
         <div class="card-body">
           <h5 class="card-title">${item.title || item.name}</h5>
-          <button onclick="watchVideo('${item.id}')" class="btn btn-primary">Assistir</button>
+          <button onclick="viewMovieDetails('${item.id}', 'movie')" class="btn btn-danger"><span class="bi bi-info-circle"></span> Ver Detalhes</button>
         </div>
       `;
       row.appendChild(card);
@@ -118,6 +117,10 @@ function addSwipeToCarousel(carouselId) {
   });
 }
 
+function viewMovieDetails(movieId, type) {
+  // Redireciona para a página de detalhes do filme com o ID do filme na query string
+  window.location.href = `destaque/detalhes.html?id=${movieId}&type=${type}`;
+}
 
 
 

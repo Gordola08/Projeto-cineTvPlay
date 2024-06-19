@@ -10,13 +10,14 @@ let currentType = null;
 document.addEventListener('DOMContentLoaded', () => {
   fetchSeries();
   setupPagination();
+  setupSearch();
+  setupDropdowns();
 });
 
 function fetchSeries(categoryId = null, type = null, page = 1) {
   currentCategory = categoryId;
   currentType = type;
   currentPage = page;
-  let seriesHTML = [];
   let url = `${apiUrl}/tv/popular?api_key=${apiKey}&language=pt-BR&page=${page}`;
 
   if (categoryId) {
@@ -33,39 +34,20 @@ function fetchSeries(categoryId = null, type = null, page = 1) {
     }
   }
 
-  fetch(url, {
-    method: 'GET',
-  })
-    .then(response => response.json())
-    .then(filmes => {
-      seriesHTML = seriesHTML.concat(filmes.results);
-      displayContent(seriesHTML, 'series-container');
+  fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro ao buscar séries.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      displayContent(data.results, 'series-container');
+    })
+    .catch(error => {
+      console.error('Erro ao buscar séries:', error);
     });
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  fetchSeries();
-  setupPagination();
-  setupSearch();
-  setupDropdowns();
-});
-
-function setupDropdowns() {
-  const categoryMenu = document.getElementById('categoryMenu');
-
-  categoryMenu.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', event => {
-      event.preventDefault();
-      const categoryName = event.target.textContent;
-      document.getElementById('dropdownMenuButton').textContent = categoryName;
-      const categoryId = event.target.getAttribute('data-category');
-      const type = event.target.getAttribute('data-type');
-      fetchSeries(categoryId, type, 1);
-    });
-  });
-}
-
-
 
 function displayContent(items, containerId) {
   const container = document.getElementById(containerId);
@@ -81,20 +63,11 @@ function displayContent(items, containerId) {
             <h5 class="card-title">${item.title || item.name}</h5>
             <p class="card-text">Avaliação: ${item.vote_average}</p>
             ${item.runtime ? `<p class="card-text">Duração: ${item.runtime} min</p>` : ''}
-            <button onclick="watchVideo('${item.id}')" class="btn btn-primary"><span class="bi bi-play-circle"></span> Assistir</button>
+            <button onclick="viewSeriesDetails('${item.id}', 'tv')" class="btn btn-danger"><span class="bi bi-info-circle"></span> Ver Detalhes</button>
           </div>
         </div>
       </div>
     `;
-
-    card.addEventListener('mouseover', () => {
-      card.querySelector('.card-overlay').style.display = 'block';
-    });
-
-    card.addEventListener('mouseout', () => {
-      card.querySelector('.card-overlay').style.display = 'none';
-    });
-
     container.appendChild(card);
   });
 
@@ -106,15 +79,50 @@ function displayContent(items, containerId) {
   }
 }
 
+function viewSeriesDetails(seriesId, type) {
+  // Redireciona para a página de detalhes da série com os parâmetros ID da série e tipo
+  const detalhesUrl = `../destaque/detalhes2.html?id=${seriesId}&type=${type}`;
+  window.location.href = detalhesUrl;
+}
 
+function searchSeries(query) {
+  const encodedQuery = encodeURIComponent(query);
+  const searchUrl = `${embedderBaseUrl}search?q=${encodedQuery}`;
 
+  fetch(searchUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro ao buscar séries no Super Flix API.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.results && data.results.length > 0) {
+        const firstResult = data.results[0];
+        const seriesUrl = firstResult.link;
+        window.open(seriesUrl, '_blank');
+      } else {
+        console.error('Série não encontrada no Super Flix API.');
+      }
+    })
+    .catch(error => {
+      console.error('Erro ao buscar séries no Super Flix API:', error);
+    });
+}
 
+function setupDropdowns() {
+  const categoryMenu = document.getElementById('categoryMenu');
 
-
-
-function watchVideo(id) {
-  const embedUrl = `${embedderBaseUrl}tt3920288`;
-  window.open(embedUrl, '_blank');
+  categoryMenu.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', event => {
+      event.preventDefault();
+      const categoryName = event.target.textContent;
+      document.getElementById('dropdownMenuButton').textContent = categoryName;
+      const categoryId = event.target.getAttribute('data-category');
+      const type = event.target.getAttribute('data-type');
+      fetchSeries(categoryId, type, 1);
+    });
+  });
 }
 
 function setupPagination() {
@@ -131,55 +139,6 @@ function setupPagination() {
   });
 }
 
-document.querySelectorAll('.dropdown-item').forEach(item => {
-  item.addEventListener('click', event => {
-    event.preventDefault();
-    const categoryName = event.target.textContent;
-    document.getElementById('dropdownMenuButton').textContent = categoryName;
-    const categoryId = event.target.getAttribute('data-category');
-    const type = event.target.getAttribute('data-type');
-    fetchSeries(categoryId, type, 1);
-  });
-});
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  fetchSeries();
-  setupPagination();
-  setupSearch();
-});
-
-function setupDropdowns() {
-  const categoryMenu = document.getElementById('categoryMenu');
-
-  categoryMenu.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', event => {
-      event.preventDefault();
-      const categoryName = event.target.textContent;
-      document.getElementById('dropdownMenuButton').textContent = categoryName;
-      const categoryId = event.target.getAttribute('data-category');
-      const type = event.target.getAttribute('data-type');
-      fetchSeries(categoryId, type, 1);
-    });
-  });
-}
-
-function searchSeries(query) {
-  const encodedQuery = encodeURIComponent(query);
-  const searchUrl = `${apiUrl}/search/tv?api_key=${apiKey}&language=pt-BR&query=${encodedQuery}`;
-  
-  fetch(searchUrl)
-    .then(response => response.json())
-    .then(data => {
-      const results = data.results;
-      displayContent(results, 'series-container');
-    })
-    .catch(error => {
-      console.error('Error searching series:', error);
-    });
-}
-
-
 document.addEventListener("DOMContentLoaded", function () {
   const toggleBtn = document.querySelector('.navbar-toggler');
   const sidebar = document.querySelector('.sidebar');
@@ -188,3 +147,24 @@ document.addEventListener("DOMContentLoaded", function () {
     sidebar.classList.toggle('active');
   });
 });
+
+function setupSearch() {
+  const searchInput = document.getElementById('searchInput');
+  const searchButton = document.getElementById('button-addon2');
+
+  searchButton.addEventListener('click', () => {
+    const query = searchInput.value.trim();
+    if (query !== '') {
+      searchSeries(query);
+    }
+  });
+
+  searchInput.addEventListener('keypress', event => {
+    if (event.key === 'Enter') {
+      const query = searchInput.value.trim();
+      if (query !== '') {
+        searchSeries(query);
+      }
+    }
+  });
+}
