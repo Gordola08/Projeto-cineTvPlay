@@ -36,6 +36,16 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         console.error('Elemento com id "favoriteButton" não encontrado.');
     }
+
+    const toggleBtn = document.querySelector('.navbar-toggler');
+    const sidebar = document.querySelector('.sidebar');
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', function () {
+            sidebar.classList.toggle('active');
+        });
+    } else {
+        console.error('Elemento .navbar-toggler ou .sidebar não encontrado.');
+    }
 });
 
 async function fetchDetails(id, type) {
@@ -127,6 +137,7 @@ function displayEpisodeVideo(seasonNumber, episodeNumber) {
 
     const seriesId = seriesIdElement.value;
     const videoUrl = `${embedderBaseUrl}${seriesId}/${seasonNumber}-${episodeNumber}`;
+    console.log(`Loading video from URL: ${videoUrl}`); // Debug log
     const videoIframe = document.getElementById('videoIframe');
     if (videoIframe) {
         videoIframe.src = videoUrl;
@@ -158,36 +169,4 @@ function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, 
 
     localStorage.setItem('favoriteSeries', JSON.stringify(favorites));
     alert('Série salva como favorita!');
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.querySelector('.navbar-toggler');
-    const sidebar = document.querySelector('.sidebar');
-
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', function () {
-            sidebar.classList.toggle('active');
-        });
-    } else {
-        console.error('Elemento .navbar-toggler ou .sidebar não encontrado.');
-    }
-});
-
-
-function displayEpisodeVideo(seasonNumber, episodeNumber) {
-    const seriesIdElement = document.getElementById('seriesId');
-    if (!seriesIdElement) {
-        console.error('Elemento com id "seriesId" não encontrado.');
-        return;
-    }
-
-    const seriesId = seriesIdElement.value;
-    const videoUrl = `${embedderBaseUrl}${seriesId}/${seasonNumber}-${episodeNumber}`;
-    console.log(`Loading video from URL: ${videoUrl}`); // Debug log
-    const videoIframe = document.getElementById('videoIframe');
-    if (videoIframe) {
-        videoIframe.src = videoUrl;
-    } else {
-        console.error('Elemento com id "videoIframe" não encontrado.');
-    }
 }
