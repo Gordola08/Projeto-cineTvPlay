@@ -9,11 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const type = urlParams.get("type"); // 'tv'
 
     const seriesIdElement = document.getElementById('seriesId');
-    if (seriesIdElement) {
-        seriesIdElement.value = seriesId;
-    } else {
-        console.error('Elemento com id "seriesId" não encontrado.');
-    }
+    seriesIdElement.value = seriesId;
 
     if (seriesId && type === 'tv') {
         fetchDetails(seriesId, type);
@@ -33,18 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             saveFavoriteSeries(seriesId, seriesTitle, posterPath, seriesOverview, seriesGenre, seriesRuntime, seriesReleaseDate, seasonSelected, episodeSelected);
         });
-    } else {
-        console.error('Elemento com id "favoriteButton" não encontrado.');
-    }
-
-    const toggleBtn = document.querySelector('.navbar-toggler');
-    const sidebar = document.querySelector('.sidebar');
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', function () {
-            sidebar.classList.toggle('active');
-        });
-    } else {
-        console.error('Elemento .navbar-toggler ou .sidebar não encontrado.');
     }
 });
 
@@ -68,6 +52,8 @@ function displayDetails(data, type) {
     document.getElementById("genre").textContent = data.genres.map(genre => genre.name).join(', ');
     document.getElementById("runtime").textContent = `${data.episode_run_time[0]} min`;
     document.getElementById("release-date").textContent = data.first_air_date;
+
+    document.title = `${data.name} - cineTv Play`;
 
     const seasonSelect = document.getElementById("seasonSelect");
     seasonSelect.innerHTML = '';
@@ -137,7 +123,7 @@ function displayEpisodeVideo(seasonNumber, episodeNumber) {
 
     const seriesId = seriesIdElement.value;
     const videoUrl = `${embedderBaseUrl}${seriesId}/${seasonNumber}-${episodeNumber}`;
-    console.log(`Loading video from URL: ${videoUrl}`); // Debug log
+    console.log(`Carregando vídeo da URL: ${videoUrl}`); // Log de depuração
     const videoIframe = document.getElementById('videoIframe');
     if (videoIframe) {
         videoIframe.src = videoUrl;
@@ -170,3 +156,18 @@ function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, 
     localStorage.setItem('favoriteSeries', JSON.stringify(favorites));
     alert('Série salva como favorita!');
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtn = document.querySelector('.navbar-toggler');
+    const sidebar = document.querySelector('.sidebar');
+
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', function () {
+            sidebar.classList.toggle('active');
+        });
+    } else {
+        console.error('Elemento .navbar-toggler ou .sidebar não encontrado.');
+    }
+});
+
+   

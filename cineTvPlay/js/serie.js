@@ -14,25 +14,32 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDropdowns();
 });
 
-function setupDropdowns() {
-  const categoryMenu = document.getElementById('categoryMenu');
 
-  categoryMenu.querySelectorAll('.dropdown-item').forEach(item => {
+
+function setupDropdowns() {
+  const dropdownMenu = document.querySelector('.dropdown-menu');
+
+  dropdownMenu.querySelectorAll('.dropdown-item').forEach(item => {
     item.addEventListener('click', event => {
       event.preventDefault();
-      const categoryName = event.target.textContent;
+
+      const categoryName = event.target.textContent.trim();
       document.getElementById('dropdownMenuButton').textContent = categoryName;
+
       const categoryId = event.target.getAttribute('data-category');
       const type = event.target.getAttribute('data-type');
-      fetchMovies(categoryId, 1);
+
+      fetchSeries(categoryId, type, 1);
     });
   });
 }
+
 
 function fetchSeries(categoryId = null, type = null, page = 1) {
   currentCategory = categoryId;
   currentType = type;
   currentPage = page;
+
   let url = `${apiUrl}/tv/popular?api_key=${apiKey}&language=pt-BR&page=${page}`;
 
   if (categoryId) {
@@ -40,10 +47,16 @@ function fetchSeries(categoryId = null, type = null, page = 1) {
       url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&with_keywords=210024&page=${page}`; // Filtrando por Anime
     } else if (categoryId === '16' && type === 'cartoon') {
       url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&without_keywords=210024&page=${page}`; // Filtrando por Desenho
-    } else if (categoryId === '35' && type === 'dorama') {
+    } else if (categoryId === '35') {
+      url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`; // Filtrando por Comédia
+    } else if (categoryId === '18') {
+      url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`; // Filtrando por Drama
+    } else if (categoryId === '28') {
+      url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`; // Filtrando por Ação
+    } else if (categoryId === '12') {
+      url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`; // Filtrando por Aventura
+    } else if (categoryId === '10762') {
       url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`; // Filtrando por Dorama
-    } else if (categoryId === '28' || categoryId === '12') {
-      url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`; // Filtrando por Ação ou Aventura
     } else {
       url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`;
     }
@@ -63,6 +76,8 @@ function fetchSeries(categoryId = null, type = null, page = 1) {
       console.error('Erro ao buscar séries:', error);
     });
 }
+
+
 
 function displayContent(items, containerId) {
   const container = document.getElementById(containerId);
@@ -134,20 +149,7 @@ function searchSeries(query) {
     });
 }
 
-function setupDropdowns() {
-  const categoryMenu = document.getElementById('categoryMenu');
 
-  categoryMenu.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', event => {
-      event.preventDefault();
-      const categoryName = event.target.textContent;
-      document.getElementById('dropdownMenuButton').textContent = categoryName;
-      const categoryId = event.target.getAttribute('data-category');
-      const type = event.target.getAttribute('data-type');
-      fetchSeries(categoryId, type, 1);
-    });
-  });
-}
 
 function setupPagination() {
   document.getElementById('prevPage').addEventListener('click', event => {
@@ -191,4 +193,28 @@ function setupSearch() {
       }
     }
   });
+}
+function searchSeries(query) {
+  const encodedQuery = encodeURIComponent(query);
+  const searchUrl = `${apiUrl}/search/tv?api_key=${apiKey}&query=${encodedQuery}&language=pt-BR`;
+
+  fetch(searchUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro ao buscar séries na API TheMovieDB.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.results && data.results.length > 0) {
+        displayContent(data.results, 'series-container');
+      } else {
+        console.error('Nenhuma série encontrada na API TheMovieDB.');
+        const container = document.getElementById('series-container');
+        container.innerHTML = '<p>Nenhuma série encontrada.</p>';
+      }
+    })
+    .catch(error => {
+      console.error('Erro ao buscar séries na API TheMovieDB:', error);
+    });
 }
