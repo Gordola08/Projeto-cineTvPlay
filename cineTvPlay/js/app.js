@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
   addSwipeToCarousel('series-carousel');
 });
 
-
 function fetchMovies() {
   let allMovies = [];
   for (let page = 1; page <= 5; page++) {
@@ -29,7 +28,7 @@ function fetchMovies() {
         allMovies = allMovies.concat(filmes.results);
         if (allMovies.length >= 20 || page === 5) {
           const filmesHtml = allMovies.slice(0, 15);
-          displayContent(filmesHtml, 'movies-container', 'movies-carousel');
+          displayContent(filmesHtml, 'movies-container', 'movies-carousel', 'movie');
         }
       });
   }
@@ -44,13 +43,13 @@ function fetchSeries() {
         allSeries = allSeries.concat(series.results);
         if (allSeries.length >= 15 || page === 5) {
           const seriesHTML = allSeries.slice(0, 15);
-          displayContent(seriesHTML, 'series-container', 'series-carousel');
+          displayContent(seriesHTML, 'series-container', 'series-carousel', 'tv');
         }
       });
   }
 }
 
-function displayContent(items, containerId, carouselId) {
+function displayContent(items, containerId, carouselId, type) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
 
@@ -72,7 +71,7 @@ function displayContent(items, containerId, carouselId) {
         <img src="${imageBaseUrl}${item.poster_path}" class="card-img-top" alt="${item.title || item.name}">
         <div class="card-body">
           <h5 class="card-title">${item.title || item.name}</h5>
-          <button onclick="viewMovieDetails('${item.id}', 'movie')" class="btn btn-danger"><span class="bi bi-info-circle"></span> Ver Detalhes</button>
+          <button onclick="viewDetails('${item.id}', '${type}')" class="btn btn-danger"><span class="bi bi-info-circle"></span> Ver Detalhes</button>
         </div>
       `;
       row.appendChild(card);
@@ -117,16 +116,9 @@ function addSwipeToCarousel(carouselId) {
   });
 }
 
-function viewMovieDetails(movieId, type) {
-  // Redireciona para a página de detalhes do filme com o ID do filme na query string
-  window.location.href = `destaque/detalhes.html?id=${movieId}&type=${type}`;
-}
-
-
-
-function watchVideo(id) {
-  const embedUrl = `${embedderBaseUrl}${id}`;
-  window.open(embedUrl, '_blank');
+function viewDetails(id, type) {
+  const detalhesUrl = type === 'movie' ? `destaque/detalhes.html?id=${id}&type=${type}` : `destaque/detalhes2.html?id=${id}&type=${type}`;
+  window.location.href = detalhesUrl;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -137,5 +129,3 @@ document.addEventListener("DOMContentLoaded", function () {
     sidebar.classList.toggle('active');
   });
 });
-
-

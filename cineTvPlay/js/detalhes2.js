@@ -9,7 +9,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const type = urlParams.get("type"); // 'tv'
 
     const seriesIdElement = document.getElementById('seriesId');
-    seriesIdElement.value = seriesId;
+    if (seriesIdElement) {
+        seriesIdElement.value = seriesId;
+    } else {
+        console.error('Elemento com id "seriesId" não encontrado.');
+    }
 
     if (seriesId && type === 'tv') {
         fetchDetails(seriesId, type);
@@ -29,6 +33,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
             saveFavoriteSeries(seriesId, seriesTitle, posterPath, seriesOverview, seriesGenre, seriesRuntime, seriesReleaseDate, seasonSelected, episodeSelected);
         });
+    } else {
+        console.error('Elemento com id "favoriteButton" não encontrado.');
+    }
+
+    const toggleBtn = document.querySelector('.navbar-toggler');
+    const sidebar = document.querySelector('.sidebar');
+
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', function () {
+            sidebar.classList.toggle('active');
+        });
+    } else {
+        console.error('Elemento .navbar-toggler ou .sidebar não encontrado.');
     }
 });
 
@@ -97,20 +114,22 @@ function displayEpisodes(episodes) {
     episodeSelect.innerHTML = '';
     episodes.forEach(episode => {
         const option = document.createElement('option');
-        option.value = episode.episode_number;
-        option.textContent = `Episódio ${episode.episode_number}: ${episode.name}`;
+        option.value = `${episode.season_number}-${episode.episode_number}`;
+        option.textContent = `Temporada ${episode.season_number} - Episódio ${episode.episode_number}: ${episode.name}`;
         episodeSelect.appendChild(option);
     });
 
     // Selecionar o primeiro episódio por padrão
     if (episodes.length > 0) {
-        episodeSelect.value = episodes[0].episode_number;
+        episodeSelect.value = `${episodes[0].season_number}-${episodes[0].episode_number}`;
         displayEpisodeVideo(episodes[0].season_number, episodes[0].episode_number);
     }
 
     episodeSelect.addEventListener('change', function () {
-        const selectedEpisode = episodes.find(ep => ep.episode_number == this.value);
-        displayEpisodeVideo(selectedEpisode.season_number, selectedEpisode.episode_number);
+        const selectedOption = this.value.split('-');
+        const selectedSeason = selectedOption[0];
+        const selectedEpisode = selectedOption[1];
+        displayEpisodeVideo(selectedSeason, selectedEpisode);
     });
 }
 
@@ -122,13 +141,24 @@ function displayEpisodeVideo(seasonNumber, episodeNumber) {
     }
 
     const seriesId = seriesIdElement.value;
-    const videoUrl = `${embedderBaseUrl}${seriesId}/${seasonNumber}-${episodeNumber}`;
-    console.log(`Carregando vídeo da URL: ${videoUrl}`); // Log de depuração
-    const videoIframe = document.getElementById('videoIframe');
+    const embedderUrl = `${embedderBaseUrl}${seriesId}?season=${seasonNumber}&episode=${episodeNumber}`;
+    console.log(`Carregando vídeo da URL: ${embedderUrl}`);
+
+    const videoIframe = document.getElementById('assistir');
     if (videoIframe) {
-        videoIframe.src = videoUrl;
+        videoIframe.src = embedderUrl;
     } else {
-        console.error('Elemento com id "videoIframe" não encontrado.');
+        console.error('Elemento com id "assistir" não encontrado.');
+    }
+
+    // Atualizar o título do episódio selecionado
+    const episodeTitleElement = document.getElementById('episodeTitle');
+    if (episodeTitleElement) {
+        const episodeSelect = document.getElementById('episodeSelect');
+        const selectedOption = episodeSelect.options[episodeSelect.selectedIndex].textContent;
+        episodeTitleElement.textContent = selectedOption;
+    } else {
+        console.error('Elemento com id "episodeTitle" não encontrado.');
     }
 }
 
@@ -156,18 +186,3 @@ function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, 
     localStorage.setItem('favoriteSeries', JSON.stringify(favorites));
     alert('Série salva como favorita!');
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.querySelector('.navbar-toggler');
-    const sidebar = document.querySelector('.sidebar');
-
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', function () {
-            sidebar.classList.toggle('active');
-        });
-    } else {
-        console.error('Elemento .navbar-toggler ou .sidebar não encontrado.');
-    }
-});
-
-   
