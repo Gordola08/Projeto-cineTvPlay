@@ -4,6 +4,7 @@ const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
 
 let moviesFetched = false;
 let seriesFetched = false;
+let topRatedFetched = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!moviesFetched) {
@@ -15,42 +16,67 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchSeries();
     seriesFetched = true;
   }
+
+  if (!topRatedFetched) {
+    fetchTopRated();
+    topRatedFetched = true;
+  }
+  
   addSwipeToCarousel('movies-carousel');
   addSwipeToCarousel('series-carousel');
 });
 
 function fetchMovies() {
-  let allMovies = [];
-  for (let page = 1; page <= 5; page++) {
-    fetch(`${apiUrl}/movie/popular?api_key=${apiKey}&language=pt-BR&page=${page}`)
-      .then(response => response.json())
-      .then(filmes => {
-        allMovies = allMovies.concat(filmes.results);
-        if (allMovies.length >= 20 || page === 5) {
-          const filmesHtml = allMovies.slice(0, 15);
-          displayContent(filmesHtml, 'movies-container', 'movies-carousel', 'movie');
-        }
-      });
-  }
+  fetch(`${apiUrl}/movie/popular?api_key=${apiKey}&language=pt-BR&page=1`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro ao buscar filmes populares');
+      }
+      return response.json();
+    })
+    .then(data => {
+      const filmesHtml = data.results.slice(0, 15);
+      displayContent(filmesHtml, 'movies-container', 'movies-carousel', 'movie');
+    })
+    .catch(error => console.error('Erro ao buscar filmes:', error));
 }
 
 function fetchSeries() {
-  let allSeries = [];
-  for (let page = 1; page <= 5; page++) {
-    fetch(`${apiUrl}/tv/popular?api_key=${apiKey}&language=pt-BR&page=${page}`)
-      .then(response => response.json())
-      .then(series => {
-        allSeries = allSeries.concat(series.results);
-        if (allSeries.length >= 15 || page === 5) {
-          const seriesHTML = allSeries.slice(0, 15);
-          displayContent(seriesHTML, 'series-container', 'series-carousel', 'tv');
-        }
-      });
-  }
+  fetch(`${apiUrl}/tv/popular?api_key=${apiKey}&language=pt-BR&page=1`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro ao buscar séries populares');
+      }
+      return response.json();
+    })
+    .then(data => {
+      const seriesHTML = data.results.slice(0, 15);
+      displayContent(seriesHTML, 'series-container', 'series-carousel', 'tv');
+    })
+    .catch(error => console.error('Erro ao buscar séries:', error));
+}
+
+function fetchTopRated() {
+  fetch(`${apiUrl}/movie/top_rated?api_key=${apiKey}&language=pt-BR&page=1`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro ao buscar filmes mais votados');
+      }
+      return response.json();
+    })
+    .then(data => {
+      const topRatedItems = data.results.slice(0, 6); // Limitar aos top 6 itens
+      displayTopRated(topRatedItems);
+    })
+    .catch(error => console.error('Erro ao buscar filmes mais votados:', error));
 }
 
 function displayContent(items, containerId, carouselId, type) {
   const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container ${containerId} não encontrado.`);
+    return;
+  }
   container.innerHTML = '';
 
   const chunks = chunkArray(items, 5);
@@ -94,6 +120,8 @@ function chunkArray(array, chunkSize) {
 
 function addSwipeToCarousel(carouselId) {
   const carousel = document.getElementById(carouselId);
+  if (!carousel) return;
+
   const hammer = new Hammer(carousel, {
     touchAction: 'pan-y',
     recognizers: [

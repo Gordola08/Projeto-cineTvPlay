@@ -137,36 +137,3 @@ footer {
   }
 }
 
-.highlight-section {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-.highlight-section .main-card {
-  flex: 1;
-  margin-right: 1rem;
-}
-
-.highlight-section .side-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.highlight-section .side-card {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  background-color: #343a40;
-  border-radius: 0.5rem;
-  color: white;
-  width: 100%;
-}
-
-.highlight-section .side-card .number {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-right: 1rem;
-}
