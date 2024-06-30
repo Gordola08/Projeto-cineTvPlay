@@ -14,14 +14,14 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         console.error('Elemento com id "seriesId" não encontrado.');
     }
-
+    
     if (seriesId && type === 'tv') {
         fetchDetails(seriesId, type);
     }
-
+    
     const toggleBtn = document.querySelector('.navbar-toggler');
     const sidebar = document.querySelector('.sidebar');
-
+    
     if (toggleBtn && sidebar) {
         toggleBtn.addEventListener('click', function () {
             sidebar.classList.toggle('active');
@@ -62,11 +62,11 @@ function displayDetails(data, type) {
         option.textContent = `Temporada ${i}`;
         seasonSelect.appendChild(option);
     }
-
+    
     seasonSelect.addEventListener('change', function () {
         fetchEpisodes(this.value);
     });
-
+    
     fetchEpisodes(1);
 }
 
@@ -94,20 +94,41 @@ async function fetchEpisodes(seasonNumber) {
 function displayEpisodes(episodes) {
     const episodeContainer = document.getElementById("episodeContainer");
     episodeContainer.innerHTML = '';
+
+    const seriesIdElement = document.getElementById('seriesId');
+    if (!seriesIdElement) {
+        console.error('Elemento com id "seriesId" não encontrado.');
+        return;
+    }
+    const seriesId = seriesIdElement.value;
+
     episodes.forEach(episode => {
         const episodeDiv = document.createElement('div');
         episodeDiv.classList.add('episode');
+        episodeDiv.dataset.seriesId = seriesId; // Adiciona o ID da série como um atributo de dados
 
         const episodeTitle = document.createElement('h4');
         episodeTitle.textContent = `Temporada ${episode.season_number} - Episódio ${episode.episode_number}: ${episode.name}`;
+        episodeTitle.classList.add('episode-title');
+        episodeTitle.style.display = 'none';
         episodeDiv.appendChild(episodeTitle);
+
+        const watchButton = document.createElement('button');
+        watchButton.classList.add('watch-button');
+        watchButton.textContent = `${episode.episode_number}`; // Exibe número do episódio
+        watchButton.addEventListener('click', () => {
+            episodeTitle.style.display = episodeTitle.style.display === 'none' ? 'block' : 'none';
+            toggleIframe(episode.season_number, episode.episode_number, seriesId);
+        });
+        episodeDiv.appendChild(watchButton);
 
         const videoIframe = document.createElement('iframe');
         videoIframe.width = "100%"; // Alterado para 100% para ser responsivo
         videoIframe.height = "315";
-        videoIframe.src = `${embedderBaseUrl}?imdb=${seriesId}&sea=${episode.season_number}&epi=${episode.episode_number}`;
+        videoIframe.src = `${embedderBaseUrl}?imdb=${seriesId}&sea=${episode.season_number}&epi=${episode.episodeId}`;
         videoIframe.setAttribute('allowFullScreen', ''); // Adicionar permitir tela cheia
         videoIframe.setAttribute('frameborder', '0'); // Remover borda do iframe
+        videoIframe.style.display = 'none'; // Inicialmente escondido
         videoIframe.addEventListener('error', () => {
             console.error('Erro ao carregar o vídeo.');
             videoIframe.style.display = 'none'; // Esconder o iframe se houver erro
@@ -124,6 +145,43 @@ function displayEpisodes(episodes) {
     });
 }
 
+function toggleIframe(seasonNumber, episodeNumber, seriesId) {
+    const episodeDivs = document.querySelectorAll('.episode');
+    episodeDivs.forEach(div => {
+        const divSeriesId = div.dataset.seriesId;
+        if (divSeriesId === seriesId) {
+            const iframe = div.querySelector('iframe');
+            if (iframe) {
+                iframe.style.display = 'none';
+            }
+        }
+    });
+
+    const currentIframe = document.querySelector(`iframe[src*="sea=${seasonNumber}&epi=${episodeNumber}"]`);
+    if (currentIframe) {
+        currentIframe.style.display = 'block';
+    }
+}
+
+
+function toggleIframe(seasonNumber, episodeNumber, seriesId) {
+    const episodeDivs = document.querySelectorAll('.episode');
+    episodeDivs.forEach(div => {
+        const divSeriesId = div.dataset.seriesId;
+        if (divSeriesId === seriesId) {
+            const iframe = div.querySelector('iframe');
+            if (iframe) {
+                iframe.style.display = 'none';
+            }
+        }
+    });
+
+    const currentIframe = document.querySelector(`iframe[src*="sea=${seasonNumber}&epi=${episodeNumber}"]`);
+    if (currentIframe) {
+        currentIframe.style.display = 'block';
+    }
+}
+
 function markAsWatched(seasonNumber, episodeNumber) {
     let watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || [];
     const episodeKey = `S${seasonNumber}E${episodeNumber}`;
@@ -132,7 +190,7 @@ function markAsWatched(seasonNumber, episodeNumber) {
         watchedEpisodes.push(episodeKey);
         localStorage.setItem('watchedEpisodes', JSON.stringify(watchedEpisodes));
     }
-
+    
     updateWatchedIcons();
 }
 
@@ -153,6 +211,15 @@ function updateWatchedIcons() {
         icon.style.display = isEpisodeWatched(seasonNumber, episodeNumber) ? 'inline' : 'none';
     });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtn = document.querySelector('.navbar-toggler');
+    const sidebar = document.querySelector('.sidebar');
+
+    toggleBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('active');
+    });
+});
 
 function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeSelected, episodeId) {
     let favorites = JSON.parse(localStorage.getItem('favoriteSeries')) || [];
@@ -179,14 +246,3 @@ function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, 
     localStorage.setItem('favoriteSeries', JSON.stringify(favorites));
     alert('Série salva como favorita!');
 }
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.querySelector('.navbar-toggler');
-    const sidebar = document.querySelector('.sidebar');
-  
-    toggleBtn.addEventListener('click', function () {
-      sidebar.classList.toggle('active');
-    });
-  });
-    

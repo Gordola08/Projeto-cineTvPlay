@@ -64,13 +64,13 @@ footer {
 .sidebar-heading {
   padding: 1rem;
   font-size: 1.5rem;
-  color: #fff;
+  color: #000000;
 }
 
 .list-group-item {
   background-color: transparent;
   border: none;
-  color: #fff;
+  color: #000000;
   padding: 1rem;
 }
 
@@ -137,3 +137,8 @@ footer {
   }
 }
 
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}

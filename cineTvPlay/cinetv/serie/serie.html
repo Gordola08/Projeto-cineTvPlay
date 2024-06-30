@@ -9,9 +9,9 @@
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="shortcut icon" type="imagex/png" href="../../img/logoCineTvPlay.png">
   <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="../../css/bootstrap.min.css">
   <link rel="stylesheet" href="../../css/bootstrap.min (2).css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <body>
@@ -50,14 +50,16 @@
     </div>
   </nav>
 
-  <!-- Conteúdo principal -->
-  <main class="col-md-10 col-lg-10 ms-md-auto px-md-4">
-    <div class="input-group mb-1">
-      <input type="text" id="searchInput" class="form-control" placeholder="Buscar filmes..." aria-label="Buscar filmes" aria-describedby="button-addon2">
+   <!-- Conteúdo principal -->
+   <main class="col-md-9 ms-md-auto px-md-4">
+    <div class="input-group mb-3">
+      <input type="text" id="searchInput" class="form-control" placeholder="Buscar filmes..." aria-label="Buscar filmes"
+        aria-describedby="button-addon2">
       <button class="btn btn-outline-secondary" type="button" id="button-addon2">Buscar</button>
     </div>
     <div class="dropdown mb-3">
-      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
+        aria-expanded="false">
         Categorias
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -67,10 +69,12 @@
         <li><a class="dropdown-item" href="#" data-category="18">Drama</a></li>
         <li><a class="dropdown-item" href="#" data-category="28">Ação</a></li>
         <li><a class="dropdown-item" href="#" data-category="12">Aventura</a></li>
-        <li><a class="dropdown-item" href="#" data-category="10762">Dorama</a></li>        
-      </ul>
+        <li><a class="dropdown-item" href="#" data-category="10762">Dorama</a></li>
       </ul>
     </div>
+
+    
+
     <div class="container mt-5">
       <h1 class="text-center mb-4">Séries</h1>
       <div id="series-container" class="row">
@@ -88,8 +92,6 @@
         </li>
       </ul>
     </nav>
-  </div>
-
   </main>
 
   <!-- Footer -->
@@ -100,8 +102,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/serie.js"></script>
 </body>
 

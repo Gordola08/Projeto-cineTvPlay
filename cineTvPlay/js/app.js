@@ -22,9 +22,42 @@ document.addEventListener('DOMContentLoaded', () => {
     topRatedFetched = true;
   }
   
+  fetchHighlight();  // Fetch the highlight of the day
   addSwipeToCarousel('movies-carousel');
   addSwipeToCarousel('series-carousel');
 });
+
+function fetchHighlight() {
+  fetch(`${apiUrl}/movie/popular?api_key=${apiKey}&language=pt-BR&page=1`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro ao buscar o destaque do dia');
+      }
+      return response.json();
+    })
+    .then(data => {
+      const highlightItem = data.results[0]; // Pega o primeiro item da lista de filmes populares
+      displayHighlight(highlightItem);
+    })
+    .catch(error => console.error('Erro ao buscar o destaque do dia:', error));
+}
+
+function displayHighlight(item) {
+  const highlightBanner = document.getElementById('highlight-banner');
+  if (!highlightBanner) {
+    console.error('Banner de destaque não encontrado.');
+    return;
+  }
+
+  highlightBanner.innerHTML = `
+    <img src="${imageBaseUrl}${item.backdrop_path}" alt="${item.title}" class="img-fluid">
+    <div class="overlay">
+      <h2>${item.title}</h2>
+      <p>${item.overview}</p>
+      <button onclick="viewDetails('${item.id}', 'movie')" class="btn btn-danger"><span class="bi bi-info-circle"></span> Assistir Agora</button>
+    </div>
+  `;
+}
 
 function fetchMovies() {
   fetch(`${apiUrl}/movie/popular?api_key=${apiKey}&language=pt-BR&page=1`)
