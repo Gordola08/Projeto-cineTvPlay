@@ -67,7 +67,7 @@ function displayDetails(data, type) {
         fetchEpisodes(this.value);
     });
     
-    fetchEpisodes(1);
+    fetchEpisodes(1); // Carrega os episódios da primeira temporada ao carregar a página
 }
 
 async function fetchEpisodes(seasonNumber) {
@@ -85,106 +85,57 @@ async function fetchEpisodes(seasonNumber) {
             throw new Error('Erro ao buscar os episódios da temporada.');
         }
         const data = await response.json();
-        displayEpisodes(data.episodes);
+        displayEpisodes(data.episodes, seriesId); // Passar o seriesId para displayEpisodes
     } catch (error) {
         console.error('Erro ao buscar episódios:', error);
     }
 }
 
-function displayEpisodes(episodes) {
+function displayEpisodes(episodes, seriesId) {
     const episodeContainer = document.getElementById("episodeContainer");
     episodeContainer.innerHTML = '';
-
-    const seriesIdElement = document.getElementById('seriesId');
-    if (!seriesIdElement) {
-        console.error('Elemento com id "seriesId" não encontrado.');
-        return;
-    }
-    const seriesId = seriesIdElement.value;
 
     episodes.forEach(episode => {
         const episodeDiv = document.createElement('div');
         episodeDiv.classList.add('episode');
-        episodeDiv.dataset.seriesId = seriesId; // Adiciona o ID da série como um atributo de dados
+        episodeDiv.dataset.seriesId = seriesId;
 
         const episodeTitle = document.createElement('h4');
         episodeTitle.textContent = `Temporada ${episode.season_number} - Episódio ${episode.episode_number}: ${episode.name}`;
         episodeTitle.classList.add('episode-title');
-        episodeTitle.style.display = 'none';
         episodeDiv.appendChild(episodeTitle);
 
-        const watchButton = document.createElement('button');
-        watchButton.classList.add('watch-button');
-        watchButton.textContent = `${episode.episode_number}`; // Exibe número do episódio
-        watchButton.addEventListener('click', () => {
-            episodeTitle.style.display = episodeTitle.style.display === 'none' ? 'block' : 'none';
-            toggleIframe(episode.season_number, episode.episode_number, seriesId);
-        });
-        episodeDiv.appendChild(watchButton);
+        const videoContainer = document.createElement('div');
+        videoContainer.classList.add('video-container');
 
         const videoIframe = document.createElement('iframe');
-        videoIframe.width = "100%"; // Alterado para 100% para ser responsivo
+        videoIframe.width = "100%";
         videoIframe.height = "315";
-        videoIframe.src = `${embedderBaseUrl}?imdb=${seriesId}&sea=${episode.season_number}&epi=${episode.episodeId}`;
-        videoIframe.setAttribute('allowFullScreen', ''); // Adicionar permitir tela cheia
-        videoIframe.setAttribute('frameborder', '0'); // Remover borda do iframe
-        videoIframe.style.display = 'none'; // Inicialmente escondido
-        videoIframe.addEventListener('error', () => {
-            console.error('Erro ao carregar o vídeo.');
-            videoIframe.style.display = 'none'; // Esconder o iframe se houver erro
-        });
-        episodeDiv.appendChild(videoIframe);
+        videoIframe.style.display = 'block'; // Mostrar o iframe diretamente
+        videoIframe.setAttribute('allowFullScreen', '');
+        videoIframe.setAttribute('frameborder', '0');
+        videoIframe.src = `${embedderBaseUrl}?id=${seriesId}&sea=${episode.season_number}&epi=${episode.episode_number}`;
+        videoContainer.appendChild(videoIframe);
+
+        episodeDiv.appendChild(videoContainer);
 
         const watchedIcon = document.createElement('span');
         watchedIcon.classList.add('watched-icon');
-        watchedIcon.style.display = isEpisodeWatched(episode.season_number, episode.episode_number) ? 'inline' : 'none';
+        watchedIcon.style.display = isEpisodeWatched(seriesId, episode.season_number, episode.episode_number) ? 'inline' : 'none';
         watchedIcon.textContent = '✔️';
+        watchedIcon.addEventListener('click', function () {
+            markAsWatched(seriesId, episode.season_number, episode.episode_number);
+            watchedIcon.style.display = 'inline';
+        });
         episodeDiv.appendChild(watchedIcon);
 
         episodeContainer.appendChild(episodeDiv);
     });
 }
 
-function toggleIframe(seasonNumber, episodeNumber, seriesId) {
-    const episodeDivs = document.querySelectorAll('.episode');
-    episodeDivs.forEach(div => {
-        const divSeriesId = div.dataset.seriesId;
-        if (divSeriesId === seriesId) {
-            const iframe = div.querySelector('iframe');
-            if (iframe) {
-                iframe.style.display = 'none';
-            }
-        }
-    });
-
-    const currentIframe = document.querySelector(`iframe[src*="sea=${seasonNumber}&epi=${episodeNumber}"]`);
-    if (currentIframe) {
-        currentIframe.style.display = 'block';
-    }
-}
-
-
-function toggleIframe(seasonNumber, episodeNumber, seriesId) {
-    const episodeDivs = document.querySelectorAll('.episode');
-    episodeDivs.forEach(div => {
-        const divSeriesId = div.dataset.seriesId;
-        if (divSeriesId === seriesId) {
-            const iframe = div.querySelector('iframe');
-            if (iframe) {
-                iframe.style.display = 'none';
-            }
-        }
-    });
-
-    const currentIframe = document.querySelector(`iframe[src*="sea=${seasonNumber}&epi=${episodeNumber}"]`);
-    if (currentIframe) {
-        currentIframe.style.display = 'block';
-    }
-}
-
-function markAsWatched(seasonNumber, episodeNumber) {
+function markAsWatched(seriesId, seasonNumber, episodeNumber) {
     let watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || [];
-    const episodeKey = `S${seasonNumber}E${episodeNumber}`;
+    const episodeKey = `${seriesId}-S${seasonNumber}E${episodeNumber}`;
 
     if (!watchedEpisodes.includes(episodeKey)) {
         watchedEpisodes.push(episodeKey);
@@ -194,9 +145,9 @@ function markAsWatched(seasonNumber, episodeNumber) {
     updateWatchedIcons();
 }
 
-function isEpisodeWatched(seasonNumber, episodeNumber) {
+function isEpisodeWatched(seriesId, seasonNumber, episodeNumber) {
     let watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || [];
-    const episodeKey = `S${seasonNumber}E${episodeNumber}`;
+    const episodeKey = `${seriesId}-S${seasonNumber}E${episodeNumber}`;
     return watchedEpisodes.includes(episodeKey);
 }
 
@@ -204,22 +155,14 @@ function updateWatchedIcons() {
     const watchedIcons = document.querySelectorAll('.watched-icon');
     watchedIcons.forEach(icon => {
         const parentDiv = icon.parentElement;
+        const seriesId = parentDiv.dataset.seriesId;
         const episodeInfo = parentDiv.querySelector('h4').textContent;
         const seasonNumber = episodeInfo.match(/Temporada (\d+)/)[1];
         const episodeNumber = episodeInfo.match(/Episódio (\d+)/)[1];
 
-        icon.style.display = isEpisodeWatched(seasonNumber, episodeNumber) ? 'inline' : 'none';
+        icon.style.display = isEpisodeWatched(seriesId, seasonNumber, episodeNumber) ? 'inline' : 'none';
     });
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.querySelector('.navbar-toggler');
-    const sidebar = document.querySelector('.sidebar');
-
-    toggleBtn.addEventListener('click', function () {
-        sidebar.classList.toggle('active');
-    });
-});
 
 function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeSelected, episodeId) {
     let favorites = JSON.parse(localStorage.getItem('favoriteSeries')) || [];
@@ -240,9 +183,12 @@ function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, 
         releaseDate: releaseDate,
         season: seasonSelected,
         episode: episodeSelected,
-        episodeId: episodeId // Adiciona o ID do episódio
+        episodeId: episodeId
     });
 
     localStorage.setItem('favoriteSeries', JSON.stringify(favorites));
     alert('Série salva como favorita!');
 }
+function goBack() {
+    window.history.back();
+  }

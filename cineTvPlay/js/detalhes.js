@@ -154,3 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
       sidebar.classList.toggle('active');
     });
   });
+
+  function goBack() {
+    window.history.back();
+  }
