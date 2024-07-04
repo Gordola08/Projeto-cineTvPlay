@@ -3,6 +3,7 @@ const apiUrl = 'https://api.themoviedb.org/3';
 const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
 
 document.addEventListener('DOMContentLoaded', function () {
+
   // Função para buscar e exibir detalhes de um filme da API do TMDB
   function fetchMovieDetails(movieId) {
     const url = `${apiUrl}/movie/${movieId}?api_key=${apiKey}`;

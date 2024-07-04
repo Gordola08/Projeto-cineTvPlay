@@ -2,6 +2,7 @@ const apiKey = 'f929634d7d1ae9a3e4b1215ec7d38336';
 const apiUrl = 'https://api.themoviedb.org/3';
 const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
 const embedderBaseUrl = 'https://embedder.net/e/series';
+const firebaseUrl = 'https://cinetvplay-eba33-default-rtdb.firebaseio.com/usuario.json';
 
 document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);
@@ -28,6 +29,26 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     } else {
         console.error('Elemento .navbar-toggler ou .sidebar não encontrado.');
+    }
+
+    const saveFavoriteBtn = document.getElementById('saveFavoriteBtn');
+    if (saveFavoriteBtn) {
+        saveFavoriteBtn.addEventListener('click', function () {
+            const seriesId = document.getElementById('seriesId').value;
+            const seriesTitle = document.getElementById('title').textContent;
+            const posterPath = document.getElementById('poster').src;
+            const overview = document.getElementById('overview').textContent;
+            const genre = document.getElementById('genre').textContent;
+            const runtime = document.getElementById('runtime').textContent;
+            const releaseDate = document.getElementById('release-date').textContent;
+            const seasonSelected = document.getElementById('seasonSelect').value;
+            const episodeSelected = document.getElementById('episodeSelect').value; // Adjust to get selected episode
+            const episodeId = ''; // Not specified in your request, handle as needed
+
+            saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeSelected, episodeId);
+        });
+    } else {
+        console.error('Elemento com id "saveFavoriteBtn" não encontrado.');
     }
 });
 
@@ -143,8 +164,8 @@ function markAsWatched(seriesId, seasonNumber, episodeNumber) {
     }
     
     updateWatchedIcons();
+    saveProgressToFirebase(seriesId, seasonNumber, episodeNumber); // Save progress to Firebase
 }
-
 function isEpisodeWatched(seriesId, seasonNumber, episodeNumber) {
     let watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || [];
     const episodeKey = `${seriesId}-S${seasonNumber}E${episodeNumber}`;
@@ -164,7 +185,7 @@ function updateWatchedIcons() {
     });
 }
 
-function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeSelected, episodeId) {
+async function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeSelected, episodeId) {
     let favorites = JSON.parse(localStorage.getItem('favoriteSeries')) || [];
 
     const existingSeries = favorites.find(series => series.id === seriesId);
@@ -188,7 +209,77 @@ function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, 
 
     localStorage.setItem('favoriteSeries', JSON.stringify(favorites));
     alert('Série salva como favorita!');
+
+    await saveFavoriteToFirebase(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeSelected, episodeId); // Save to Firebase
 }
+
 function goBack() {
     window.history.back();
-  }
+}
+
+async function saveFavoriteToFirebase(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeSelected, episodeId) {
+    const userId = getUserId(); // Assume there is a function that retrieves the user ID
+    const favoriteSeries = {
+        id: seriesId,
+        title: seriesTitle,
+        poster: posterPath,
+        overview: overview,
+        genre: genre,
+        runtime: runtime,
+        releaseDate: releaseDate,
+        season: seasonSelected,
+        episode: episodeSelected,
+        episodeId: episodeId
+    };
+
+    try {
+        const response = await fetch(`${firebaseUrl}/${userId}/favorites.json`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(favoriteSeries)
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao salvar a série favorita no Firebase.');
+        }
+
+        alert('Série favorita salva no Firebase com sucesso!');
+    } catch (error) {
+        console.error('Erro ao salvar série favorita no Firebase:', error);
+    }
+}
+
+async function saveProgressToFirebase(seriesId, seasonNumber, episodeNumber) {
+    const userId = getUserId(); // Assume there is a function that retrieves the user ID
+    const progress = {
+        seriesId: seriesId,
+        season: seasonNumber,
+        episode: episodeNumber
+    };
+
+    try {
+        const response = await fetch(`${firebaseUrl}/${userId}/progress.json`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(progress)
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao salvar o progresso no Firebase.');
+        }
+
+        console.log('Progresso salvo no Firebase com sucesso!');
+    } catch (error) {
+        console.error('Erro ao salvar progresso no Firebase:', error);
+    }
+}
+
+function getUserId() {
+    // Implementar lógica para recuperar o ID do usuário
+    // Isso pode ser feito por meio de autenticação ou armazenando um ID de usuário no localStorage
+    return 'usuario_id_exemplo'; // Substituir pelo ID real do usuário
+}
