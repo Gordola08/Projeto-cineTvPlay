@@ -118,40 +118,82 @@ function displayEpisodes(episodes, seriesId) {
 
     episodes.forEach(episode => {
         const episodeDiv = document.createElement('div');
-        episodeDiv.classList.add('episode');
+        episodeDiv.classList.add('episode-item', 'd-flex', 'align-items-center', 'mb-3');
         episodeDiv.dataset.seriesId = seriesId;
+        episodeDiv.dataset.seasonNumber = episode.season_number;
+        episodeDiv.dataset.episodeNumber = episode.episode_number;
 
-        const episodeTitle = document.createElement('h4');
-        episodeTitle.textContent = `Temporada ${episode.season_number} - Episódio ${episode.episode_number}: ${episode.name}`;
+        const episodeImage = document.createElement('img');
+        episodeImage.classList.add('episode-image', 'me-3');
+        episodeImage.src = `${imageBaseUrl}${episode.still_path}`;
+        episodeDiv.appendChild(episodeImage);
+
+        const episodeDetails = document.createElement('div');
+        episodeDetails.classList.add('episode-details', 'flex-grow-1');
+
+        const episodeTitle = document.createElement('h5');
+        episodeTitle.textContent = episode.name;
         episodeTitle.classList.add('episode-title');
-        episodeDiv.appendChild(episodeTitle);
+        episodeDetails.appendChild(episodeTitle);
 
-        const videoContainer = document.createElement('div');
-        videoContainer.classList.add('video-container');
-
-        const videoIframe = document.createElement('iframe');
-        videoIframe.width = "100%";
-        videoIframe.height = "315";
-        videoIframe.style.display = 'block'; // Mostrar o iframe diretamente
-        videoIframe.setAttribute('allowFullScreen', '');
-        videoIframe.setAttribute('frameborder', '0');
-        videoIframe.src = `${embedderBaseUrl}?id=${seriesId}&sea=${episode.season_number}&epi=${episode.episode_number}`;
-        videoContainer.appendChild(videoIframe);
-
-        episodeDiv.appendChild(videoContainer);
+        const episodeInfo = document.createElement('p');
+        episodeInfo.classList.add('episode-info', 'text-muted');
+        episodeInfo.textContent = `S${episode.season_number} E${episode.episode_number} - ${new Date(episode.air_date).toLocaleDateString()}`;
+        episodeDetails.appendChild(episodeInfo);
 
         const watchedIcon = document.createElement('span');
-        watchedIcon.classList.add('watched-icon');
-        watchedIcon.style.display = isEpisodeWatched(seriesId, episode.season_number, episode.episode_number) ? 'inline' : 'none';
-        watchedIcon.textContent = '✔️';
-        watchedIcon.addEventListener('click', function () {
-            markAsWatched(seriesId, episode.season_number, episode.episode_number);
-            watchedIcon.style.display = 'inline';
+        watchedIcon.classList.add('watched-icon', 'ms-2', 'bi', 'bi-check-circle-fill'); // Bootstrap icon
+        episodeDetails.appendChild(watchedIcon);
+
+        const notFinishedLabel = document.createElement('span');
+        notFinishedLabel.classList.add('not-finished');
+        notFinishedLabel.textContent = 'Não terminou de assistir';
+        episodeDetails.appendChild(notFinishedLabel);
+
+        updateWatchedIcon(seriesId, episode.season_number, episode.episode_number, watchedIcon, notFinishedLabel);
+
+        episodeDiv.appendChild(episodeDetails);
+
+        episodeDiv.addEventListener('click', function () {
+            showEpisodeModal(seriesId, episode.season_number, episode.episode_number);
         });
-        episodeDiv.appendChild(watchedIcon);
 
         episodeContainer.appendChild(episodeDiv);
     });
+}
+
+function showEpisodeModal(seriesId, seasonNumber, episodeNumber) {
+    const modal = document.getElementById('episodeModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+    
+    fetchEpisodeDetails(seriesId, seasonNumber, episodeNumber, modalTitle, modalContent);
+
+    const bootstrapModal = new bootstrap.Modal(modal);
+    bootstrapModal.show();
+}
+
+async function fetchEpisodeDetails(seriesId, seasonNumber, episodeNumber, modalTitle, modalContent) {
+    const apiUrl = `https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}?api_key=${apiKey}&language=pt-BR`;
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error('Erro ao buscar detalhes do episódio.');
+        }
+        const data = await response.json();
+
+        modalTitle.textContent = data.name;
+        modalContent.innerHTML = `
+            <img src="${data.still_path ? `https://image.tmdb.org/t/p/w500${data.still_path}` : ''}" alt="${data.name}" class="img-fluid mb-3">
+            <p>${data.overview}</p>
+            <p><strong>Data de Exibição:</strong> ${new Date(data.air_date).toLocaleDateString()}</p>
+            <iframe width="100%" height="315" src="${embedderBaseUrl}?id=${seriesId}&sea=${seasonNumber}&epi=${episodeNumber}" frameborder="0" allowfullscreen></iframe>
+        `;
+    } catch (error) {
+        console.error("Erro ao buscar detalhes do episódio:", error);
+        modalContent.innerHTML = '<p>Erro ao carregar os detalhes do episódio.</p>';
+    }
 }
 
 function markAsWatched(seriesId, seasonNumber, episodeNumber) {
@@ -166,22 +208,42 @@ function markAsWatched(seriesId, seasonNumber, episodeNumber) {
     updateWatchedIcons();
     saveProgressToFirebase(seriesId, seasonNumber, episodeNumber); // Save progress to Firebase
 }
+
 function isEpisodeWatched(seriesId, seasonNumber, episodeNumber) {
     let watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || [];
     const episodeKey = `${seriesId}-S${seasonNumber}E${episodeNumber}`;
     return watchedEpisodes.includes(episodeKey);
 }
 
-function updateWatchedIcons() {
-    const watchedIcons = document.querySelectorAll('.watched-icon');
-    watchedIcons.forEach(icon => {
-        const parentDiv = icon.parentElement;
-        const seriesId = parentDiv.dataset.seriesId;
-        const episodeInfo = parentDiv.querySelector('h4').textContent;
-        const seasonNumber = episodeInfo.match(/Temporada (\d+)/)[1];
-        const episodeNumber = episodeInfo.match(/Episódio (\d+)/)[1];
+function isEpisodeNotFinished(seriesId, seasonNumber, episodeNumber) {
+    // Placeholder function to determine if the episode is not finished
+    // You can implement your own logic to track this
+    return false;
+}
 
-        icon.style.display = isEpisodeWatched(seriesId, seasonNumber, episodeNumber) ? 'inline' : 'none';
+function updateWatchedIcon(seriesId, seasonNumber, episodeNumber, watchedIcon, notFinishedLabel) {
+    if (isEpisodeWatched(seriesId, seasonNumber, episodeNumber)) {
+        watchedIcon.style.display = 'inline';
+        notFinishedLabel.style.display = 'none';
+    } else if (isEpisodeNotFinished(seriesId, seasonNumber, episodeNumber)) {
+        watchedIcon.style.display = 'none';
+        notFinishedLabel.style.display = 'inline';
+    } else {
+        watchedIcon.style.display = 'none';
+        notFinishedLabel.style.display = 'none';
+    }
+}
+
+function updateWatchedIcons() {
+    const episodeItems = document.querySelectorAll('.episode-item');
+    episodeItems.forEach(item => {
+        const seriesId = item.dataset.seriesId;
+        const seasonNumber = item.dataset.seasonNumber;
+        const episodeNumber = item.dataset.episodeNumber;
+        const watchedIcon = item.querySelector('.watched-icon');
+        const notFinishedLabel = item.querySelector('.not-finished');
+        
+        updateWatchedIcon(seriesId, seasonNumber, episodeNumber, watchedIcon, notFinishedLabel);
     });
 }
 

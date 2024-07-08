@@ -55,38 +55,55 @@
     <i class="bi bi-arrow-left"></i> Voltar
   </button>
 
-<!-- Main Content -->
-<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-  <div class="container mt-5">
+  <!-- Main Content -->
+  <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+    <div class="container mt-5">
       <h1 class="text-center mb-4" id="title">Título</h1>
       <div class="row">
-          <div class="col-md-4">
-              <img id="poster" src="#" alt="Poster" class="img-fluid">
+        <div class="col-md-4">
+          <img id="poster" src="#" alt="Poster" class="img-fluid">
+        </div>
+        <div class="col-md-8">
+          <h3>Sinopse</h3>
+          <p id="overview">Descrição...</p>
+          <h3>Detalhes</h3>
+          <ul>
+            <li><strong>Gênero:</strong> <span id="genre">Gênero</span></li>
+            <li><strong>Duração:</strong> <span id="runtime">Duração</span></li>
+            <li><strong>Data de Lançamento:</strong> <span id="release-date">Data de lançamento</span></li>
+          </ul>
+          <div class="form-group">
+            <label for="seasonSelect">Temporada:</label>
+            <select class="form-control" id="seasonSelect" onchange="fetchEpisodes(this.value)">
+              <!-- Opções de temporada serão preenchidas dinamicamente -->
+            </select>
           </div>
-          <div class="col-md-8">
-              <h3>Sinopse</h3>
-              <p id="overview">Descrição...</p>
-              <h3>Detalhes</h3>
-              <ul>
-                  <li><strong>Gênero:</strong> <span id="genre">Gênero</span></li>
-                  <li><strong>Duração:</strong> <span id="runtime">Duração</span></li>
-                  <li><strong>Data de Lançamento:</strong> <span id="release-date">Data de lançamento</span></li>
-              </ul>
-              <div class="form-group">
-                  <label for="seasonSelect">Temporada:</label>
-                  <select class="form-control" id="seasonSelect" onchange="fetchEpisodes(this.value)">
-                      <!-- Opções de temporada serão preenchidas dinamicamente -->
-                  </select>
+
+          <button id="saveFavoriteBtn" class="btn btn-primary mt-3">Salvar como Favorito</button>
+          <h3 class="mt-4">Episódios</h3>
+          <input type="hidden" id="seriesId" value="">
+          <div id="episodeContainer"></div>
+
+          <!-- Modal -->
+          <div class="modal fade" id="episodeModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="modalTitle"></h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalContent">
+                  <!-- Conteúdo do episódio será inserido aqui -->
+                </div>
               </div>
-              
-              <button id="saveFavoriteBtn" class="btn btn-primary mt-3">Salvar como Favorito</button>
-              <h3 class="mt-4">Episódios</h3>
-              <input type="hidden" id="seriesId" value="">
-              <div id="episodeContainer"></div>
+            </div>
           </div>
+
+
+        </div>
       </div>
-  </div>
-</main>
+    </div>
+  </main>
 
   <!-- Footer -->
   <footer class="bg-dark text-center text-white py-4 mt-5">
