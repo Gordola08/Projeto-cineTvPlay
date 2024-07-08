@@ -3,3 +3,16 @@
     background-color: #000000;
     color: rgb(0, 0, 0);
   }
+
+      /* Estilo adicional para ajustar o spinner */
+      .spinner-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+  
+      /* Estilo para ajustar margens */
+      .mt-5 {
+        margin-top: 5rem;
+      }
