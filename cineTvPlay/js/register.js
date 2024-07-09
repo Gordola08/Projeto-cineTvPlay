@@ -10,22 +10,40 @@ btn.addEventListener('click', function(e) {
 });
 
 function verificarCamposEVoltar() {
+    // Resetar qualquer estilo de campo inválido
+    usuarioInput.classList.remove('campo-invalido');
+    emailInput.classList.remove('campo-invalido');
+    senhaInput.classList.remove('campo-invalido');
+
     // Verificar se os campos obrigatórios estão preenchidos
-    if (!usuarioInput.value || !emailInput.value || !senhaInput.value) {
-        alert('Por favor, preencha todos os campos.');
+    if (!usuarioInput.value.trim()) {
+        alert('Por favor, preencha o campo Usuário.');
+        usuarioInput.classList.add('campo-invalido');
+        return;
+    }
+
+    if (!emailInput.value.trim()) {
+        alert('Por favor, preencha o campo Email.');
+        emailInput.classList.add('campo-invalido');
         return;
     }
 
     // Verificar o formato do email usando uma expressão regular simples
     var emailFormato = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailFormato.test(emailInput.value)) {
+    if (!emailFormato.test(emailInput.value.trim())) {
         alert('Por favor, insira um email válido.');
+        emailInput.classList.add('campo-invalido');
+        return;
+    }
+
+    if (!senhaInput.value.trim()) {
+        alert('Por favor, preencha o campo Senha.');
+        senhaInput.classList.add('campo-invalido');
         return;
     }
 
     verificarUsuarioEmail();
 }
-
 
 function verificarUsuarioEmail() {
     fetch('https://cinetvplay-eba33-default-rtdb.firebaseio.com/usuario.json')
@@ -42,8 +60,8 @@ function verificarUsuarioEmail() {
                 return;
             }
 
-            var usuarioExistente = Object.values(data).some(item => item.usuario === usuarioInput.value);
-            var emailExistente = Object.values(data).some(item => item.email === emailInput.value);
+            var usuarioExistente = Object.values(data).some(item => item.usuario === usuarioInput.value.trim());
+            var emailExistente = Object.values(data).some(item => item.email === emailInput.value.trim());
 
             if (usuarioExistente) {
                 alert('Este usuário já existe. Escolha outro nome de usuário.');
@@ -66,9 +84,9 @@ function cadastrarNovoUsuario() {
         var reader = new FileReader();
         reader.onload = function(e) {
             var dados = {
-                usuario: usuarioInput.value,
-                email: emailInput.value,
-                senha: senhaInput.value,
+                usuario: usuarioInput.value.trim(),
+                email: emailInput.value.trim(),
+                senha: senhaInput.value.trim(),
                 avatar: e.target.result // Base64 da imagem selecionada
             };
             salvarNoFirebase(dados);
@@ -76,9 +94,9 @@ function cadastrarNovoUsuario() {
         reader.readAsDataURL(file);
     } else {
         var dados = {
-            usuario: usuarioInput.value,
-            email: emailInput.value,
-            senha: senhaInput.value
+            usuario: usuarioInput.value.trim(),
+            email: emailInput.value.trim(),
+            senha: senhaInput.value.trim()
         };
         salvarNoFirebase(dados);
     }
