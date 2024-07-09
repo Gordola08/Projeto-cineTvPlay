@@ -10,13 +10,22 @@ btn.addEventListener('click', function(e) {
 });
 
 function verificarCamposEVoltar() {
+    // Verificar se os campos obrigatórios estão preenchidos
     if (!usuarioInput.value || !emailInput.value || !senhaInput.value) {
         alert('Por favor, preencha todos os campos.');
         return;
     }
 
+    // Verificar o formato do email usando uma expressão regular simples
+    var emailFormato = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailFormato.test(emailInput.value)) {
+        alert('Por favor, insira um email válido.');
+        return;
+    }
+
     verificarUsuarioEmail();
 }
+
 
 function verificarUsuarioEmail() {
     fetch('https://cinetvplay-eba33-default-rtdb.firebaseio.com/usuario.json')

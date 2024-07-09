@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Listagem de Filmes e Séries - cineTv Play</title>
+        <!-- Adicionar links para o Bootstrap CSS -->
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Link para o seu arquivo de estilos personalizados -->
+        <link rel="stylesheet" href="../css/adm.css">
+        <link rel="stylesheet" href=".././css/bootstrap.min.css">
+        <link rel="stylesheet" href=".././css/bootstrap.min (2).css">
+    </head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">cineTv Play</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="ver-filmes">Ver Filmes em Alta</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="ver-series">Ver Séries em Alta</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Enviar Filmes/Séries</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Usuários Logando</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <header class="text-center my-4">
+            <h1>Listagem de Filmes e Séries</h1>
+        </header>
+        <section id="content">
+            <div class="row">
+                <div class="col-md-6" id="movies-list">
+                    <!-- Aqui serão adicionados os filmes dinamicamente via JavaScript -->
+                </div>
+                <div class="col-md-6" id="series-list">
+                    <!-- Aqui serão adicionadas as séries dinamicamente via JavaScript -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Adicionar script para Bootstrap JS e seu script personalizado -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="../js/adm.js"></script>
+</body>
+</html>

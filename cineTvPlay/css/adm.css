@@ -1,0 +1,53 @@
+/* Estilos básicos para o layout */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+}
+
+main {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.movie, .serie {
+    display: flex;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.movie img, .serie img {
+    width: 100px; /* Reduzindo o tamanho da imagem */
+    height: auto;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.movie-details, .serie-details {
+    flex: 1;
+}
+
+.movie-title, .serie-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.movie-overview, .serie-overview {
+    font-size: 0.9rem;
+}
