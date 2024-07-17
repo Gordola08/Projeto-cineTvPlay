@@ -1,0 +1,50 @@
+.watched-icon {
+    color: green;
+    font-size: 1.5em;
+    margin-left: 10px;
+    display: none; /* Inicialmente escondido */
+}
+
+.not-finished {
+    color: red;
+    font-size: 0.9em;
+    margin-left: 10px;
+    display: none; /* Inicialmente escondido */
+}
+
+.episode-item {
+    cursor: pointer;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* Para ajustar em telas menores */
+}
+
+.episode-item:hover {
+    background-color: #f5f5f5;
+}
+
+.episode-image {
+    width: 100px;
+    height: auto;
+    margin-bottom: 10px; /* Espaço entre imagem e texto em telas menores */
+}
+
+.episode-details {
+    flex-grow: 1;
+    min-width: 0; /* Para garantir que não estoure em telas menores */
+}
+
+.episode-title {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.episode-info {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
