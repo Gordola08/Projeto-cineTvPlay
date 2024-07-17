@@ -66,15 +66,33 @@ async function fetchAssitir(id, type) {
     const response = await fetch(`${apiUrl}/${type}/${id}/videos?api_key=${apiKey}&language=pt-BR`);
     if (!response.ok) {
       throw new Error('Erro ao carregar o vídeo para assistir.');
-    }
-    const data = await response.json();
-    const assistir = data.results.find(video => video.type === "Assitir");
+      try {
+        const response = await fetch(`${apiUrl}/${type}/${id}/videos?api_key=${apiKey}&language=pt-BR`);
+        if (!response.ok) {
+          throw new Error('Erro ao carregar o vídeo para assistir.');
+        }
+        const data = await response.json();
+        const assistir = data.results.find(video => video.type === "Assitir");
 
-    if (assistir) {
-      document.getElementById("assitir").src = `${embedderBaseUrl}${assistir.key}`;
-    } else {
-      // Se não houver trailer disponível, usar o link direto fornecido pelo Embedder.net
-      document.getElementById("assitir-container").innerHTML = `<iframe id="assitir" src="https://embedder.net/e/${id}" width="100%" height="315" frameborder="0" allowfullscreen></iframe>`;
+        if (assistir) {
+          document.getElementById("assitir").src = `${embedderBaseUrl}${assistir.key}`;
+        } else {
+          // Se não houver trailer disponível, usar o link direto fornecido pelo Embedder.net
+          document.getElementById("assitir-container").innerHTML = `<iframe id="assitir" src="https://embedder.net/e/${id}" width="100%" height="315" frameborder="0" allowfullscreen></iframe>`;
+        }
+      } catch (error) {
+        console.error("Erro ao buscar vídeo para assistir:", error);
+        document.getElementById("assitir-container").innerHTML = "<p>O que você deseja ver aqui não foi encontrado. Tente novamente mais tarde.</p><p>Em breve, esse filme estará disponível.</p>";
+      }
+      const data = await response.json();
+      const assistir = data.results.find(video => video.type === "Assitir");
+
+      if (assistir) {
+        document.getElementById("assitir").src = `${embedderBaseUrl}${assistir.key}`;
+      } else {
+        // Se não houver trailer disponível, usar o link direto fornecido pelo Embedder.net
+        document.getElementById("assitir-container").innerHTML = `<iframe id="assitir" src="https://embedder.net/e/${id}" width="100%" height="315" frameborder="0" allowfullscreen></iframe>`;
+      }
     }
   } catch (error) {
     console.error("Erro ao buscar vídeo para assistir:", error);
@@ -87,6 +105,62 @@ function viewMovieDetails(movieId, type) {
   window.location.href = `detalhes.html?id=${movieId}&type=${type}`;
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+  const toggleBtn = document.querySelector('.navbar-toggler');
+  const sidebar = document.querySelector('.sidebar');
+
+  toggleBtn.addEventListener('click', function () {
+    sidebar.classList.toggle('active');
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  const urlParams = new URLSearchParams(window.location.search);
+  const movieId = urlParams.get('id');
+  const movieType = urlParams.get('type');
+
+  // Função para salvar filme como favorito no localStorage
+  function saveFavoriteMovie(movieId, movieTitle, posterPath, overview, genre, runtime, releaseDate) {
+    let favorites = JSON.parse(localStorage.getItem('favoriteMovies')) || [];
+
+    // Verifica se o filme já está salvo como favorito
+    const existingMovie = favorites.find(movie => movie.id === movieId);
+    if (existingMovie) {
+      alert('Este filme já está salvo como favorito!');
+      return;
+    }
+
+    // Adiciona o filme aos favoritos
+    favorites.push({
+      id: movieId,
+      title: movieTitle,
+      poster: posterPath,
+      overview: overview,
+      genre: genre,
+      runtime: runtime,
+      releaseDate: releaseDate
+    });
+
+    // Salva a lista atualizada de favoritos no localStorage
+    localStorage.setItem('favoriteMovies', JSON.stringify(favorites));
+    alert('Filme salvo como favorito!');
+  }
+
+  // Evento para salvar filme como favorito quando o botão é clicado
+  const favoriteButton = document.getElementById('favoriteButton');
+  favoriteButton.addEventListener('click', function () {
+    // Substitua com a lógica para buscar os detalhes do filme
+    const movieTitle = 'Título do Filme';
+    const posterPath = 'caminho/do/poster.jpg';
+    const movieOverview = 'Descrição do filme...';
+    const movieGenre = 'Gênero';
+    const movieRuntime = '120 min';
+    const movieReleaseDate = '01/01/2023';
+
+    // Chamada para salvar o filme como favorito
+    saveFavoriteMovie(movieId, movieTitle, posterPath, movieOverview, movieGenre, movieRuntime, movieReleaseDate);
+  });
+});
 
 document.addEventListener("DOMContentLoaded", function () {
   const toggleBtn = document.querySelector('.navbar-toggler');
@@ -135,29 +209,29 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch(`${apiUrl}/${movieType}/${movieId}?api_key=${apiKey}&language=pt-BR`, {
       method: 'GET',
     })
-    .then(response=>response.json())
-    .then(filme=>{
-      //pegar titulo do filme favorito
-      const movieTitle = filme.title || filme.name;
-      
-      //pegar desc do filme favorito
-      const posterPath = filme.poster_path ? `${imageBaseUrl}${filme.poster_path}` : '';
+      .then(response => response.json())
+      .then(filme => {
+        //pegar titulo do filme favorito
+        const movieTitle = filme.title || filme.name;
 
-      //pegar poster do filme favorito
-      const movieOverview = filme.overview;
+        //pegar desc do filme favorito
+        const posterPath = filme.poster_path ? `${imageBaseUrl}${filme.poster_path}` : '';
 
-      //pegar genêro do filme favorito 
-      const movieGenre = filme.genres.map(genre => genre.name).join(', ');
+        //pegar poster do filme favorito
+        const movieOverview = filme.overview;
 
-      //tempo do filme favorito
-      const movieRuntime = movieType === 'movie' ? `${filme.runtime} min` : `${filme.episode_run_time[0]} min`;
+        //pegar genêro do filme favorito 
+        const movieGenre = filme.genres.map(genre => genre.name).join(', ');
 
-      //data de lançamento
-      const movieReleaseDate = filme.release_date || filme.first_air_date;
+        //tempo do filme favorito
+        const movieRuntime = movieType === 'movie' ? `${filme.runtime} min` : `${filme.episode_run_time[0]} min`;
 
-      // Chamada para salvar o filme como favorito
-      saveFavoriteMovie(movieId, movieTitle, posterPath, movieOverview, movieGenre, movieRuntime, movieReleaseDate);
-    })
+        //data de lançamento
+        const movieReleaseDate = filme.release_date || filme.first_air_date;
+
+        // Chamada para salvar o filme como favorito
+        saveFavoriteMovie(movieId, movieTitle, posterPath, movieOverview, movieGenre, movieRuntime, movieReleaseDate);
+      })
   });
 });
 
@@ -170,6 +244,17 @@ document.addEventListener("DOMContentLoaded", function () {
     sidebar.classList.toggle('active');
   });
 });
+
+function goBack() {
+  window.history.back();
+
+  const toggleBtn = document.querySelector('.navbar-toggler');
+  const sidebar = document.querySelector('.sidebar');
+
+  toggleBtn.addEventListener('click', function () {
+    sidebar.classList.toggle('active');
+  });
+}
 
 function goBack() {
   window.history.back();

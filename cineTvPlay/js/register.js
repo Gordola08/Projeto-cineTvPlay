@@ -14,6 +14,7 @@ function verificarCamposEVoltar() {
     usuarioInput.classList.remove('campo-invalido');
     emailInput.classList.remove('campo-invalido');
     senhaInput.classList.remove('campo-invalido');
+    avatarInput.classList.remove('campo-invalido');
 
     // Verificar se os campos obrigatórios estão preenchidos
     if (!usuarioInput.value.trim()) {
@@ -39,6 +40,12 @@ function verificarCamposEVoltar() {
     if (!senhaInput.value.trim()) {
         alert('Por favor, preencha o campo Senha.');
         senhaInput.classList.add('campo-invalido');
+        return;
+    }
+
+    if (!avatarInput.files.length) {
+        alert('Por favor, selecione uma foto de avatar.');
+        avatarInput.classList.add('campo-invalido');
         return;
     }
 
