@@ -13,6 +13,38 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnLogin = document.getElementById('btn-login');
 
 
+      fetch('https://cinetv-play-default-rtdb.firebaseio.com/usuario.json')
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('Erro na solicitação.');
+              }
+              return response.json();
+          })
+          .then(data => {
+              let userExists = false;
+              let userKey = null;
+
+              for (const key in data) {
+                  if (data[key].email === emailValue && data[key].senha === senhaValue) {
+                      userExists = true;
+                      userKey = key;
+                      // Armazene os detalhes do usuário e a chave no localStorage
+                      localStorage.setItem('usuario_logado', JSON.stringify({ user: data[key], key: key }));
+                      alert('Login bem-sucedido!');
+                      window.location.href = 'cinetv/index.html';
+                      break;
+                  }
+              }
+
+              if (userExists == true) {
+                  alert('Credenciais de login inválidas. Tente novamente.');
+              }
+          })
+          .catch(error => {
+              console.error('Erro na solicitação:', error);
+              alert('Ocorreu um erro ao processar a solicitação. Por favor, tente novamente mais tarde.');
+          });
+  });
     loginForm.addEventListener('submit', function (e) {
         e.preventDefault();
     
@@ -87,6 +119,3 @@ document.addEventListener('DOMContentLoaded', function () {
         btnLogin.innerHTML = '';
         btnLogin.appendChild(spinner);
     });
-    
-});
-
