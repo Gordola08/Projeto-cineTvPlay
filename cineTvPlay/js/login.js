@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   }
               }
 
-              if (!userExists) {
+              if (userExists == true) {
                   alert('Credenciais de login inválidas. Tente novamente.');
               }
           })
