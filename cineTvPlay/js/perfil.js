@@ -99,6 +99,61 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  function displayFavoriteSeries() {
+    const favoriteSeriesList = document.getElementById('favorite-series');
+
+    // Limpa a lista atual de filmes favoritos
+    favoriteSeriesList.innerHTML = '';
+
+    // Recupera os filmes favoritos do localStorage
+    const favoriteSeries = JSON.parse(localStorage.getItem('favoriteSeries')) || [];
+
+    // Verifica se há filmes favoritos para exibir
+    if (favoriteSeries.length === 0) {
+      favoriteSeriesList.innerHTML = '<p>Nenhuma serie favorita encontrada.</p>';
+    } else {
+      // Adiciona cada filme favorito à lista em cards
+      favoriteSeries.forEach(serie => {
+        const card = document.createElement('div');
+        card.classList.add('card', 'mb-3');
+        card.addEventListener('click', function () {
+          fetchMovieDetails(serie.id);
+        });
+
+        const image = document.createElement('img');
+        image.classList.add('card-img-top');
+        image.src = `${serie.poster}`;
+        image.alt = serie.title;
+        card.appendChild(image);
+
+        const cardBody = document.createElement('div');
+        cardBody.classList.add('card-body');
+
+        const title = document.createElement('h5');
+        title.classList.add('card-title');
+        title.textContent = serie.title;
+        cardBody.appendChild(title);
+
+        const overview = document.createElement('p');
+        overview.classList.add('card-text');
+        overview.textContent = serie.overview.length > 150 ? serie.overview.substring(0, 150) + '...' : serie.overview;
+        cardBody.appendChild(overview);
+
+        const viewButton = document.createElement('button');
+        viewButton.classList.add('btn', 'btn-primary');
+        viewButton.textContent = 'Clique no card';
+        viewButton.addEventListener('click', function () {
+          fetchMovieDetails(serie.id);
+        });
+        cardBody.appendChild(viewButton);
+
+        card.appendChild(cardBody);
+
+        favoriteSeriesList.appendChild(card);
+      });
+    }
+  }
+
   // Verificar se há um usuário logado
   const usuarioLogadoJSON = localStorage.getItem('usuario_logado');
 
@@ -124,6 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Carregar filmes favoritos do localStorage
     displayFavoriteMovies();
+    displayFavoriteSeries()
   } else {
     console.log('Nenhum usuário está logado.');
     // Aqui você pode exibir uma mensagem ou redirecionar o usuário para a página de login
