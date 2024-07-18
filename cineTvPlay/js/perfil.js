@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const image = document.createElement('img');
         image.classList.add('card-img-top');
-        image.src = `${imageBaseUrl}${movie.poster_path}`;
+        image.src = `${movie.poster}`;
         image.alt = movie.title;
         card.appendChild(image);
 
