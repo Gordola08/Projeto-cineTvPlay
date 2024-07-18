@@ -51,4 +51,10 @@
   #user-avatar {
     border: 4px solid #fff; /* Adicione uma borda branca para destacar a imagem */
   }
-  
+  #favorite-movies, #favorite-series {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 800px;
+    margin: 20px auto;
+  }

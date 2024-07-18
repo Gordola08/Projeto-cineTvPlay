@@ -42,10 +42,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const runtime = document.getElementById('runtime').textContent;
             const releaseDate = document.getElementById('release-date').textContent;
             const seasonSelected = document.getElementById('seasonSelect').value;
-            const episodeSelected = document.getElementById('episodeSelect').value; // Adjust to get selected episode
             const episodeId = ''; // Not specified in your request, handle as needed
 
-            saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeSelected, episodeId);
+            saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeId);
         });
     } else {
         console.error('Elemento com id "saveFavoriteBtn" não encontrado.');

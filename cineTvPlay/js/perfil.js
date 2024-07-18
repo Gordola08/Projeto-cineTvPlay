@@ -57,45 +57,39 @@ document.addEventListener('DOMContentLoaded', function () {
     if (favoriteMovies.length === 0) {
       favoriteMoviesList.innerHTML = '<p>Nenhum filme favorito encontrado.</p>';
     } else {
-      // Adiciona cada filme favorito à lista em cards
-      favoriteMovies.forEach(movie => {
-        const card = document.createElement('div');
-        card.classList.add('card', 'mb-3');
-        card.addEventListener('click', function () {
-          fetchMovieDetails(movie.id);
-        });
+    // Adiciona cada filme favorito à lista em cards
+    favoriteMovies.forEach(movie => {
+      const card = document.createElement('div');
+      card.classList.add('card', 'mb-0'); // Ajuste para menor margem inferior
 
-        const image = document.createElement('img');
-        image.classList.add('card-img-top');
-        image.src = `${movie.poster}`;
-        image.alt = movie.title;
-        card.appendChild(image);
+      const image = document.createElement('img');
+      image.classList.add('card-img-top');
+      image.src = `${movie.poster}`;
+      image.alt = movie.title;
+      image.style.width = '220px'; // Ajuste para largura menor
+      card.appendChild(image);
 
-        const cardBody = document.createElement('div');
-        cardBody.classList.add('card-body');
+      const cardBody = document.createElement('div');
+      cardBody.classList.add('card-body', 'p-0'); // Ajuste para menor padding
 
-        const title = document.createElement('h5');
-        title.classList.add('card-title');
-        title.textContent = movie.title;
-        cardBody.appendChild(title);
+      const title = document.createElement('h6'); // Ajuste para título menor
+      title.classList.add('card-title');
+      title.textContent = movie.title;
+      title.style.fontSize = '0.9rem'; // Ajuste para tamanho de fonte menor
+      cardBody.appendChild(title);
 
-        const overview = document.createElement('p');
-        overview.classList.add('card-text');
-        overview.textContent = movie.overview.length > 150 ? movie.overview.substring(0, 150) + '...' : movie.overview;
-        cardBody.appendChild(overview);
-
-        const viewButton = document.createElement('button');
-        viewButton.classList.add('btn', 'btn-primary');
-        viewButton.textContent = 'Clique no card';
-        viewButton.addEventListener('click', function () {
-          fetchMovieDetails(movie.id);
-        });
-        cardBody.appendChild(viewButton);
-
-        card.appendChild(cardBody);
-
-        favoriteMoviesList.appendChild(card);
+      const viewButton = document.createElement('button');
+      viewButton.classList.add('btn', 'btn-sm', 'btn-primary'); // Ajuste para botão menor
+      viewButton.textContent = 'Ver Detalhes';
+      viewButton.addEventListener('click', function () {
+        fetchMovieDetails(movie.id);
       });
+      cardBody.appendChild(viewButton);
+
+      card.appendChild(cardBody);
+
+      favoriteMoviesList.appendChild(card);
+    });
     }
   }
 
@@ -112,10 +106,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (favoriteSeries.length === 0) {
       favoriteSeriesList.innerHTML = '<p>Nenhuma serie favorita encontrada.</p>';
     } else {
-      // Adiciona cada filme favorito à lista em cards
+      // Adiciona cada série favorita à lista em cards
       favoriteSeries.forEach(serie => {
         const card = document.createElement('div');
-        card.classList.add('card', 'mb-3');
+        card.classList.add('card', 'mb-0'); // Ajuste para menor margem inferior
         card.addEventListener('click', function () {
           fetchMovieDetails(serie.id);
         });
@@ -124,25 +118,23 @@ document.addEventListener('DOMContentLoaded', function () {
         image.classList.add('card-img-top');
         image.src = `${serie.poster}`;
         image.alt = serie.title;
+        image.style.width = '220px'; // Ajuste para largura menor
         card.appendChild(image);
 
         const cardBody = document.createElement('div');
-        cardBody.classList.add('card-body');
+        cardBody.classList.add('card-body', 'p-0'); // Ajuste para menor padding
 
-        const title = document.createElement('h5');
+        const title = document.createElement('h6'); // Ajuste para título menor
         title.classList.add('card-title');
         title.textContent = serie.title;
+        title.style.fontSize = '0.9rem'; // Ajuste para tamanho de fonte menor
         cardBody.appendChild(title);
 
-        const overview = document.createElement('p');
-        overview.classList.add('card-text');
-        overview.textContent = serie.overview.length > 150 ? serie.overview.substring(0, 150) + '...' : serie.overview;
-        cardBody.appendChild(overview);
-
         const viewButton = document.createElement('button');
-        viewButton.classList.add('btn', 'btn-primary');
+        viewButton.classList.add('btn', 'btn-sm', 'btn-primary'); // Ajuste para botão menor
         viewButton.textContent = 'Clique no card';
-        viewButton.addEventListener('click', function () {
+        viewButton.addEventListener('click', function (event) {
+          event.stopPropagation(); // Impedir propagação do evento de clique do card
           fetchMovieDetails(serie.id);
         });
         cardBody.appendChild(viewButton);
@@ -151,6 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         favoriteSeriesList.appendChild(card);
       });
+
     }
   }
 
