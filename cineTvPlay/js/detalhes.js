@@ -131,16 +131,32 @@ document.addEventListener('DOMContentLoaded', function () {
     // Evento para salvar filme como favorito quando o botão é clicado
     const favoriteButton = document.getElementById('favoriteButton');
     favoriteButton.addEventListener('click', function () {
-        // Substitua com a lógica para buscar os detalhes do filme
-        const movieTitle = 'Título do Filme';
-        const posterPath = 'caminho/do/poster.jpg';
-        const movieOverview = 'Descrição do filme...';
-        const movieGenre = 'Gênero';
-        const movieRuntime = '120 min';
-        const movieReleaseDate = '01/01/2023';
-
-        // Chamada para salvar o filme como favorito
-        saveFavoriteMovie(movieId, movieTitle, posterPath, movieOverview, movieGenre, movieRuntime, movieReleaseDate);
+        fetch(`${apiUrl}/${movieType}/${movieId}?api_key=${apiKey}&language=pt-BR`, {
+            method: 'GET',
+          })
+          .then(response=>response.json())
+          .then(filme=>{
+            //pegar titulo do filme favorito
+            const movieTitle = filme.title || filme.name;
+            
+            //pegar desc do filme favorito
+            const posterPath = filme.poster_path ? `${imageBaseUrl}${filme.poster_path}` : '';
+      
+            //pegar poster do filme favorito
+            const movieOverview = filme.overview;
+      
+            //pegar genêro do filme favorito 
+            const movieGenre = filme.genres.map(genre => genre.name).join(', ');
+      
+            //tempo do filme favorito
+            const movieRuntime = movieType === 'movie' ? `${filme.runtime} min` : `${filme.episode_run_time[0]} min`;
+      
+            //data de lançamento
+            const movieReleaseDate = filme.release_date || filme.first_air_date;
+      
+            // Chamada para salvar o filme como favorito
+            saveFavoriteMovie(movieId, movieTitle, posterPath, movieOverview, movieGenre, movieRuntime, movieReleaseDate);
+          });
     });
 });
 
