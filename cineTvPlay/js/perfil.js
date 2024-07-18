@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const viewButton = document.createElement('button');
         viewButton.classList.add('btn', 'btn-primary');
-        viewButton.textContent = 'Ver Detalhes';
+        viewButton.textContent = 'Clique no card';
         viewButton.addEventListener('click', function () {
           fetchMovieDetails(movie.id);
         });
