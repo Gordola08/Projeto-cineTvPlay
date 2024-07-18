@@ -127,10 +127,12 @@ function displayContent(items, containerId, carouselId, type) {
       card.className = 'card me-2';
       card.style.width = '200px';
       card.innerHTML = `
-        <img src="${imageBaseUrl}${item.poster_path}" class="card-img-top" alt="${item.title || item.name}">
-        <div class="card-body">
-          <h5 class="card-title">${item.title || item.name}</h5>
-          <button onclick="viewDetails('${item.id}', '${type}')" class="btn btn-danger"><span class="bi bi-info-circle"></span>Clique no card</button>
+        <div onclick="viewDetails('${item.id}', '${type}')">
+          <img src="${imageBaseUrl}${item.poster_path}" class="card-img-top" alt="${item.title || item.name}">
+          <div class="card-body">
+            <h5 class="card-title">${item.title || item.name}</h5>
+            <button class="btn btn-danger"><span class="bi bi-info-circle"></span>Clique no card</button>
+          </div>
         </div>
       `;
       row.appendChild(card);

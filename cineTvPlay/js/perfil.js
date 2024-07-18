@@ -61,6 +61,9 @@ document.addEventListener('DOMContentLoaded', function () {
       favoriteMovies.forEach(movie => {
         const card = document.createElement('div');
         card.classList.add('card', 'mb-3');
+        card.addEventListener('click', function () {
+          fetchMovieDetails(movie.id);
+        });
 
         const image = document.createElement('img');
         image.classList.add('card-img-top');

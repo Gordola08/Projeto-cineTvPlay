@@ -115,14 +115,14 @@ function displayContent(items, containerId) {
     const card = document.createElement('div');
     card.className = 'col-md-3 mb-4';
     card.innerHTML = `
-      <div class="card movie-card">
+      <div class="card movie-card" onclick="viewMovieDetails('${item.id}', 'movie')">
         <img src="${imageBaseUrl}${item.poster_path}" class="card-img-top" alt="${item.title || item.name}">
         <div class="card-overlay">
           <div class="card-body">
             <h5 class="card-title">${item.title || item.name}</h5>
             <p class="card-text">Avaliação: ${item.vote_average}</p>
             ${item.runtime ? `<p class="card-text">Duração: ${item.runtime} min</p>` : ''}
-            <button onclick="viewMovieDetails('${item.id}', 'movie')" class="btn btn-danger"><span class="bi bi-info-circle"></span>Clique no card</button>
+            <button class="btn btn-danger"><span class="bi bi-info-circle"></span>Clique no card</button>
           </div>
         </div>
       </div>
