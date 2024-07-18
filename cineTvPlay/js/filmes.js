@@ -12,21 +12,58 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function fetchMovies(categoryId = null, page = 1) {
-  let moviesHtml = [];
   let url = `${apiUrl}/movie/popular?api_key=${apiKey}&language=pt-BR&page=${page}`;
   if (categoryId) {
     url = `${apiUrl}/discover/movie?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`;
   }
-  
+
   fetch(url)
     .then(response => response.json())
     .then(data => {
-      moviesHtml = data.results;
-      displayContent(moviesHtml, 'movies-container');
+      const movies = data.results;
+      filterMoviesWithVideos(movies);
     })
     .catch(error => {
       console.error('Error fetching movies:', error);
+      displayNotFoundMessage('Erro ao buscar filmes. Tente novamente mais tarde.');
     });
+}
+
+function filterMoviesWithVideos(movies) {
+  const moviesWithVideos = [];
+  let processedMovies = 0;
+
+  movies.forEach(movie => {
+    const movieId = movie.id;
+    const videoUrl = `${apiUrl}/movie/${movieId}/videos?api_key=${apiKey}&language=pt-BR`;
+
+    fetch(videoUrl)
+      .then(response => response.json())
+      .then(data => {
+        if (data.results && data.results.length > 0) {
+          moviesWithVideos.push(movie);
+        }
+        processedMovies++;
+        if (processedMovies === movies.length) {
+          if (moviesWithVideos.length === 0) {
+            displayNotFoundMessage('Nenhum filme encontrado com vídeos disponíveis.');
+          } else {
+            displayContent(moviesWithVideos, 'movies-container');
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching video for movie:', error);
+        processedMovies++;
+        if (processedMovies === movies.length) {
+          if (moviesWithVideos.length === 0) {
+            displayNotFoundMessage('Nenhum filme encontrado com vídeos disponíveis.');
+          } else {
+            displayContent(moviesWithVideos, 'movies-container');
+          }
+        }
+      });
+  });
 }
 
 function setupDropdowns() {
@@ -38,7 +75,6 @@ function setupDropdowns() {
       const categoryName = event.target.textContent;
       document.getElementById('dropdownMenuButton').textContent = categoryName;
       const categoryId = event.target.getAttribute('data-category');
-      const type = event.target.getAttribute('data-type');
       fetchMovies(categoryId, 1);
     });
   });
@@ -59,15 +95,16 @@ function setupSearch() {
 function searchMovies(query) {
   const encodedQuery = encodeURIComponent(query);
   const searchUrl = `${apiUrl}/search/movie?api_key=${apiKey}&language=pt-BR&query=${encodedQuery}`;
-  
+
   fetch(searchUrl)
     .then(response => response.json())
     .then(data => {
       const results = data.results;
-      displayContent(results, 'movies-container');
+      filterMoviesWithVideos(results);
     })
     .catch(error => {
       console.error('Error searching movies:', error);
+      displayNotFoundMessage('Erro ao buscar filmes. Tente novamente mais tarde.');
     });
 }
 
@@ -108,6 +145,11 @@ function displayContent(items, containerId) {
       overlay.style.display = 'none'; // Oculta a sobreposição
     });
   }
+}
+
+function displayNotFoundMessage(message) {
+  const container = document.getElementById('error-message');
+  container.innerHTML = `<p>${message}</p>`;
 }
 
 function viewMovieDetails(movieId, type) {

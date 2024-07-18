@@ -345,3 +345,12 @@ function getUserId() {
     // Isso pode ser feito por meio de autenticação ou armazenando um ID de usuário no localStorage
     return 'usuario_id_exemplo'; // Substituir pelo ID real do usuário
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtn = document.querySelector('.navbar-toggler');
+    const sidebar = document.querySelector('.sidebar');
+  
+    toggleBtn.addEventListener('click', function () {
+      sidebar.classList.toggle('active');
+    });
+  });
