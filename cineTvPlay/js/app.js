@@ -131,7 +131,6 @@ function displayContent(items, containerId, carouselId, type) {
           <img src="${imageBaseUrl}${item.poster_path}" class="card-img-top" alt="${item.title || item.name}">
           <div class="card-body">
             <h5 class="card-title">${item.title || item.name}</h5>
-            <button class="btn btn-danger"><span class="bi bi-info-circle"></span>Clique no card</button>
           </div>
         </div>
       `;

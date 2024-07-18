@@ -93,7 +93,6 @@ function displayContent(items, containerId) {
             <h5 class="card-title">${item.title || item.name}</h5>
             <p class="card-text">Avaliação: ${item.vote_average}</p>
             ${item.runtime ? `<p class="card-text">Duração: ${item.runtime} min</p>` : ''}
-            <button class="btn btn-danger"><span class="bi bi-info-circle"></span>Clique no card</button>
           </div>
         </div>
       </div>
