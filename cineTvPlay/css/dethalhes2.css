@@ -48,3 +48,30 @@
     font-size: 0.9rem;
     color: #666;
 }
+
+/* Animação */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-20px);
+    }
+    60% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  .logo-animation {
+    animation: bounce 2s infinite;
+    max-width: 100px;
+    height: auto;
+  }
+  
+  /* Certificando que a logo será exibida corretamente em todos os dispositivos */
+  @media (min-width: 576px) {
+    .logo-animation {
+      max-width: 150px; /* Aumenta o tamanho da logo em telas maiores */
+    }
+  }
+  
