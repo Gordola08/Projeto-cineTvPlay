@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const emailValue = document.getElementById('email').value;
         const senhaValue = document.getElementById('senha').value;
 
-        fetch('https://cinetvplay-eba33-default-rtdb.firebaseio.com/usuario.json')
+        fetch('https://cinetvplay2-56923-default-rtdb.firebaseio.com/usuario.json')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erro na solicitação.');

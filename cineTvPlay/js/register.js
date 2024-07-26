@@ -53,7 +53,7 @@ function verificarCamposEVoltar() {
 }
 
 function verificarUsuarioEmail() {
-    fetch('https://cinetvplay-eba33-default-rtdb.firebaseio.com/usuario.json')
+    fetch('https://cinetvplay2-56923-default-rtdb.firebaseio.com/usuario.json')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Não foi possível obter os usuários do Firebase.');
@@ -110,7 +110,7 @@ function cadastrarNovoUsuario() {
 }
 
 function salvarNoFirebase(dados) {
-    fetch('https://cinetvplay-eba33-default-rtdb.firebaseio.com/usuario.json', {
+    fetch('https://cinetvplay2-56923-default-rtdb.firebaseio.com/usuario.json', {
         method: 'POST',
         body: JSON.stringify(dados),
         headers: {
