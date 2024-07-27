@@ -90,7 +90,7 @@ function displayContent(items, containerId) {
         <img src="${imageBaseUrl}${item.poster_path}" class="card-img-top" alt="${item.title || item.name}">
         <div class="card-overlay">
           <div class="card-body">
-            <h5 class="card-title">${item.title || item.name}</h5>
+            <h5 class="card-title" style="color: red;">${item.title || item.name}</h5>
             <p class="card-text">Avaliação: ${item.vote_average}</p>
             ${item.runtime ? `<p class="card-text">Duração: ${item.runtime} min</p>` : ''}
           </div>

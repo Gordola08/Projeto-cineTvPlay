@@ -3,11 +3,29 @@ var emailInput = document.getElementById('email');
 var senhaInput = document.getElementById('senha');
 var avatarInput = document.getElementById('avatar');
 var btn = document.getElementById('btn');
+var alertContainer = document.getElementById('alert-container');
 
 btn.addEventListener('click', function(e) {
     e.preventDefault();
     verificarCamposEVoltar();
 });
+
+function mostrarAlerta(mensagem, tipo) {
+    var alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${tipo} alert-dismissible fade show`;
+    alertDiv.role = 'alert';
+    alertDiv.innerHTML = `
+        ${mensagem}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    `;
+    alertContainer.appendChild(alertDiv);
+
+    setTimeout(function() {
+        $(alertDiv).alert('close');
+    }, 5000);
+}
 
 function verificarCamposEVoltar() {
     // Resetar qualquer estilo de campo inválido
@@ -18,13 +36,13 @@ function verificarCamposEVoltar() {
 
     // Verificar se os campos obrigatórios estão preenchidos
     if (!usuarioInput.value.trim()) {
-        alert('Por favor, preencha o campo Usuário.');
+        mostrarAlerta('Por favor, preencha o campo Usuário.', 'danger');
         usuarioInput.classList.add('campo-invalido');
         return;
     }
 
     if (!emailInput.value.trim()) {
-        alert('Por favor, preencha o campo Email.');
+        mostrarAlerta('Por favor, preencha o campo Email.', 'danger');
         emailInput.classList.add('campo-invalido');
         return;
     }
@@ -32,19 +50,19 @@ function verificarCamposEVoltar() {
     // Verificar o formato do email usando uma expressão regular simples
     var emailFormato = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailFormato.test(emailInput.value.trim())) {
-        alert('Por favor, insira um email válido.');
+        mostrarAlerta('Por favor, insira um email válido.', 'danger');
         emailInput.classList.add('campo-invalido');
         return;
     }
 
     if (!senhaInput.value.trim()) {
-        alert('Por favor, preencha o campo Senha.');
+        mostrarAlerta('Por favor, preencha o campo Senha.', 'danger');
         senhaInput.classList.add('campo-invalido');
         return;
     }
 
     if (!avatarInput.files.length) {
-        alert('Por favor, selecione uma foto de avatar.');
+        mostrarAlerta('Por favor, selecione uma foto de avatar.', 'danger');
         avatarInput.classList.add('campo-invalido');
         return;
     }
@@ -71,16 +89,16 @@ function verificarUsuarioEmail() {
             var emailExistente = Object.values(data).some(item => item.email === emailInput.value.trim());
 
             if (usuarioExistente) {
-                alert('Este usuário já existe. Escolha outro nome de usuário.');
+                mostrarAlerta('Este usuário já existe. Escolha outro nome de usuário.', 'warning');
             } else if (emailExistente) {
-                alert('Este email já está sendo usado. Escolha outro email.');
+                mostrarAlerta('Este email já está sendo usado. Escolha outro email.', 'warning');
             } else {
                 cadastrarNovoUsuario();
             }
         })
         .catch(error => {
             console.error('Erro ao verificar usuários no Firebase:', error);
-            alert('Ocorreu um erro ao verificar os usuários. Tente novamente mais tarde.');
+            mostrarAlerta('Ocorreu um erro ao verificar os usuários. Tente novamente mais tarde.', 'danger');
         });
 }
 
@@ -125,13 +143,13 @@ function salvarNoFirebase(dados) {
     })
     .then(json => {
         console.log(json);
-        alert('Registro realizado com sucesso!');
+        mostrarAlerta('Registro realizado com sucesso!', 'success');
         setTimeout(function () {
             window.location.href = '../index.html';
         }, 2000);
     })
     .catch(error => {
         console.error('Erro ao salvar no Firebase:', error);
-        alert('Ocorreu um erro ao salvar os dados. Tente novamente mais tarde.');
+        mostrarAlerta('Ocorreu um erro ao salvar os dados. Tente novamente mais tarde.', 'danger');
     });
 }
