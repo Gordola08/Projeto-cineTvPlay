@@ -157,25 +157,56 @@ function addSwipeToCarousel(carouselId) {
   const carousel = document.getElementById(carouselId);
   if (!carousel) return;
 
-  const hammer = new Hammer(carousel, {
-    touchAction: 'pan-y',
-    recognizers: [
-      [Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }],
-    ],
-  });
+  // Initialize Hammer.js
+  const hammer = new Hammer(carousel);
 
+  // Add swipe recognizers
+  hammer.get('swipe').set({ direction: Hammer.DIRECTION_HORIZONTAL });
+
+  // Handle swipe left
   hammer.on('swipeleft', () => {
     const nextButton = carousel.querySelector('.carousel-control-next');
-    if (!nextButton.classList.contains('disabled')) {
+    if (nextButton && !nextButton.classList.contains('disabled')) {
       nextButton.click();
     }
   });
 
+  // Handle swipe right
   hammer.on('swiperight', () => {
     const prevButton = carousel.querySelector('.carousel-control-prev');
-    if (!prevButton.classList.contains('disabled')) {
+    if (prevButton && !prevButton.classList.contains('disabled')) {
       prevButton.click();
     }
+  });
+}
+
+// Example usage
+document.addEventListener('DOMContentLoaded', () => {
+  addSwipeToCarousel('myCarousel');
+});
+
+function displayTopRated(items) {
+  const container = document.getElementById('top-rated-container');
+  if (!container) {
+    console.error('Container top-rated-container não encontrado.');
+    return;
+  }
+  container.innerHTML = '';
+
+  items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'card me-2';
+    card.style.width = '200px';
+    card.innerHTML = `
+      <div onclick="viewDetails('${item.id}', 'movie')">
+        <img src="${imageBaseUrl}${item.poster_path}" class="card-img-top" alt="${item.title}">
+        <div class="card-body">
+          <h5 class="card-title" style="color: red;">${item.title}</h5>
+          <p class="card-text">Avaliação: ${item.vote_average}</p>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
   });
 }
 
