@@ -14,8 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDropdowns();
 });
 
-
-
 function setupDropdowns() {
   const dropdownMenu = document.querySelector('.dropdown-menu');
 
@@ -33,7 +31,6 @@ function setupDropdowns() {
     });
   });
 }
-
 
 function fetchSeries(categoryId = null, type = null, page = 1) {
   currentCategory = categoryId;
@@ -77,7 +74,18 @@ function fetchSeries(categoryId = null, type = null, page = 1) {
     });
 }
 
-
+function getStars(vote_average) {
+  const stars = Math.round(vote_average / 2);
+  let starHtml = '';
+  for (let i = 0; i < 5; i++) {
+    if (i < stars) {
+      starHtml += '<span class="bi bi-star-fill" style="color: blue;"></span>';
+    } else {
+      starHtml += '<span class="bi bi-star" style="color: blue;"></span>';
+    }
+  }
+  return starHtml;
+}
 
 function displayContent(items, containerId) {
   const container = document.getElementById(containerId);
@@ -91,13 +99,13 @@ function displayContent(items, containerId) {
         <div class="card-overlay">
           <div class="card-body">
             <h5 class="card-title" style="color: red;">${item.title || item.name}</h5>
-            <p class="card-text">Avaliação: ${item.vote_average}</p>
+            <p class="card-text">${getStars(item.vote_average)}</p>
             ${item.runtime ? `<p class="card-text">Duração: ${item.runtime} min</p>` : ''}
           </div>
         </div>
       </div>
     `;
-
+    
 // Função para adicionar os event listeners
 function addMobileEventListeners(card) {
   card.addEventListener('touchstart', showOverlay); // Usar touchstart em vez de mouseover
@@ -167,42 +175,42 @@ function viewSeriesDetails(seriesId, type) {
 
 function searchSeries(query) {
   const encodedQuery = encodeURIComponent(query);
-  const searchUrl = `${embedderBaseUrl}search?q=${encodedQuery}`;
+  const searchUrl = `${apiUrl}/search/tv?api_key=${apiKey}&query=${encodedQuery}&language=pt-BR`;
 
   fetch(searchUrl)
     .then(response => {
       if (!response.ok) {
-        throw new Error('Erro ao buscar séries no Super Flix API.');
+        throw new Error('Erro ao buscar séries na API TheMovieDB.');
       }
       return response.json();
     })
     .then(data => {
       if (data.results && data.results.length > 0) {
-        const firstResult = data.results[0];
-        const seriesUrl = firstResult.link;
-        window.open(seriesUrl, '_blank');
+        displayContent(data.results, 'series-container');
       } else {
-        console.error('Série não encontrada no Super Flix API.');
+        console.error('Nenhuma série encontrada na API TheMovieDB.');
+        const container = document.getElementById('series-container');
+        container.innerHTML = '<p>Nenhuma série encontrada.</p>';
       }
     })
     .catch(error => {
-      console.error('Erro ao buscar séries no Super Flix API:', error);
+      console.error('Erro ao buscar séries na API TheMovieDB:', error);
     });
 }
-
-
 
 function setupPagination() {
   document.getElementById('prevPage').addEventListener('click', event => {
     event.preventDefault();
     if (currentPage > 1) {
       fetchSeries(currentCategory, currentType, currentPage - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
 
   document.getElementById('nextPage').addEventListener('click', event => {
     event.preventDefault();
     fetchSeries(currentCategory, currentType, currentPage + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
 
@@ -234,28 +242,4 @@ function setupSearch() {
       }
     }
   });
-}
-function searchSeries(query) {
-  const encodedQuery = encodeURIComponent(query);
-  const searchUrl = `${apiUrl}/search/tv?api_key=${apiKey}&query=${encodedQuery}&language=pt-BR`;
-
-  fetch(searchUrl)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Erro ao buscar séries na API TheMovieDB.');
-      }
-      return response.json();
-    })
-    .then(data => {
-      if (data.results && data.results.length > 0) {
-        displayContent(data.results, 'series-container');
-      } else {
-        console.error('Nenhuma série encontrada na API TheMovieDB.');
-        const container = document.getElementById('series-container');
-        container.innerHTML = '<p>Nenhuma série encontrada.</p>';
-      }
-    })
-    .catch(error => {
-      console.error('Erro ao buscar séries na API TheMovieDB:', error);
-    });
 }

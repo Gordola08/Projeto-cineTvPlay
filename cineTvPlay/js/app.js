@@ -131,7 +131,7 @@ function displayContent(items, containerId, carouselId, type) {
           <img src="${imageBaseUrl}${item.poster_path}" class="card-img-top" alt="${item.title || item.name}">
           <div class="card-body">
             <h5 class="card-title" style="color: red;">${item.title || item.name}</h5>
-            <p class="card-text">Avaliação: ${item.vote_average}</p>
+            <div class="card-text">${generateStars(item.vote_average)}</div>
           </div>
         </div>
       `;
@@ -143,6 +143,21 @@ function displayContent(items, containerId, carouselId, type) {
   });
 
   addSwipeToCarousel(carouselId);
+}
+
+function generateStars(voteAverage) {
+  const maxStars = 5;
+  const stars = Math.round(voteAverage / 2); // Convertendo de 10 para 5 estrelas
+  let starHtml = '';
+
+  for (let i = 0; i < maxStars; i++) {
+    if (i < stars) {
+      starHtml += '<span class="bi bi-star-fill" style="color: blue;"></span>';
+    } else {
+      starHtml += '<span class="bi bi-star" style="color: blue;"></span>';
+    }
+  }
+  return starHtml;
 }
 
 function chunkArray(array, chunkSize) {
@@ -202,7 +217,7 @@ function displayTopRated(items) {
         <img src="${imageBaseUrl}${item.poster_path}" class="card-img-top" alt="${item.title}">
         <div class="card-body">
           <h5 class="card-title" style="color: red;">${item.title}</h5>
-          <p class="card-text">Avaliação: ${item.vote_average}</p>
+          <div class="card-text">${generateStars(item.vote_average)}</div>
         </div>
       </div>
     `;

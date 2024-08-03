@@ -97,16 +97,25 @@ function searchMovies(query) {
   const searchUrl = `${apiUrl}/search/movie?api_key=${apiKey}&language=pt-BR&query=${encodedQuery}`;
 
   fetch(searchUrl)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro ao buscar filmes na API TheMovieDB.');
+      }
+      return response.json();
+    })
     .then(data => {
-      const results = data.results;
-      filterMoviesWithVideos(results);
+      if (data.results && data.results.length > 0) {
+        displayContent(data.results, 'movies-container');
+      } else {
+        const container = document.getElementById('movies-container');
+        container.innerHTML = '<p>Nenhum filme encontrado.</p>';
+      }
     })
     .catch(error => {
-      console.error('Error searching movies:', error);
-      displayNotFoundMessage('Erro ao buscar filmes. Tente novamente mais tarde.');
+      console.error('Erro ao buscar filmes na API TheMovieDB:', error);
     });
 }
+
 
 function displayContent(items, containerId) {
   const container = document.getElementById(containerId);
@@ -120,65 +129,66 @@ function displayContent(items, containerId) {
         <div class="card-overlay">
           <div class="card-body">
             <h5 class="card-title" style="color: red;">${item.title || item.name}</h5>
-            <p class="card-text">Avaliação: ${item.vote_average}</p>
+            <p class="card-text">Avaliação: ${getStarRating(item.vote_average)}</p>
             ${item.runtime ? `<p class="card-text">Duração: ${item.runtime} min</p>` : ''}
           </div>
         </div>
       </div>
     `;
 
-    // Função para adicionar os event listeners
-    function addMobileEventListeners(card) {
-      card.addEventListener('touchstart', showOverlay); // Usar touchstart em vez de mouseover
-      card.addEventListener('touchend', hideOverlay);   // Usar touchend em vez de mouseout
+// Função para adicionar os event listeners
+function addMobileEventListeners(card) {
+  card.addEventListener('touchstart', showOverlay); // Usar touchstart em vez de mouseover
+  card.addEventListener('touchend', hideOverlay);   // Usar touchend em vez de mouseout
+}
+
+// Função para remover os event listeners
+function removeMobileEventListeners(card) {
+  card.removeEventListener('touchstart', showOverlay);
+  card.removeEventListener('touchend', hideOverlay);
+}
+
+// Funções para mostrar e esconder a sobreposição
+function showOverlay() {
+  this.querySelector('.card-overlay').style.display = 'block';
+}
+
+function hideOverlay() {
+  this.querySelector('.card-overlay').style.display = 'none';
+}
+
+// Função para verificar se o dispositivo é móvel
+function isMobile() {
+  return window.matchMedia("(max-width: 768px)").matches;
+}
+
+// Seleciona todos os cards
+const cards = document.querySelectorAll('.card');
+
+// Adiciona ou remove os event listeners conforme o dispositivo
+cards.forEach(card => {
+  if (isMobile()) {
+    addMobileEventListeners(card);
+  } else {
+    removeMobileEventListeners(card);
+  }
+});
+
+// Atualiza os event listeners ao redimensionar a janela
+window.addEventListener('resize', () => {
+  cards.forEach(card => {
+    if (isMobile()) {
+      addMobileEventListeners(card);
+    } else {
+      removeMobileEventListeners(card);
     }
-
-    // Função para remover os event listeners
-    function removeMobileEventListeners(card) {
-      card.removeEventListener('touchstart', showOverlay);
-      card.removeEventListener('touchend', hideOverlay);
-    }
-
-    // Funções para mostrar e esconder a sobreposição
-    function showOverlay() {
-      this.querySelector('.card-overlay').style.display = 'block';
-    }
-
-    function hideOverlay() {
-      this.querySelector('.card-overlay').style.display = 'none';
-    }
-
-    // Função para verificar se o dispositivo é móvel
-    function isMobile() {
-      return window.matchMedia("(max-width: 768px)").matches;
-    }
-
-    // Seleciona todos os cards
-    const cards = document.querySelectorAll('.card');
-
-    // Adiciona ou remove os event listeners conforme o dispositivo
-    cards.forEach(card => {
-      if (isMobile()) {
-        addMobileEventListeners(card);
-      } else {
-        removeMobileEventListeners(card);
-      }
-    });
-
-    // Atualiza os event listeners ao redimensionar a janela
-    window.addEventListener('resize', () => {
-      cards.forEach(card => {
-        if (isMobile()) {
-          addMobileEventListeners(card);
-        } else {
-          removeMobileEventListeners(card);
-        }
-      });
-    });
-
-
-    container.appendChild(card);
   });
+});
+
+
+container.appendChild(card);
+});
+
 
   // Verificação para dispositivos móveis
   if (window.innerWidth < 768) {
@@ -186,6 +196,19 @@ function displayContent(items, containerId) {
       overlay.style.display = 'none'; // Oculta a sobreposição
     });
   }
+}
+
+function getStarRating(voteAverage) {
+  const stars = Math.round(voteAverage / 2);
+  let starHtml = '';
+  for (let i = 0; i < 5; i++) {
+    if (i < stars) {
+      starHtml += '<span class="bi bi-star-fill" style="color: red;"></span>';
+    } else {
+      starHtml += '<span class="bi bi-star" style="color: red;"></span>';
+    }
+  }
+  return starHtml;
 }
 
 function displayNotFoundMessage(message) {

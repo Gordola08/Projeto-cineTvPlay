@@ -11,6 +11,32 @@ document.addEventListener("DOMContentLoaded", function () {
     if (movieId && type) {
         fetchDetails(movieId, type);
     }
+
+    const toggleBtn = document.querySelector('.navbar-toggler');
+    const sidebar = document.querySelector('.sidebar');
+
+    toggleBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('active');
+    });
+
+    const favoriteButton = document.getElementById('favoriteButton');
+    if (favoriteButton) {
+        favoriteButton.addEventListener('click', function () {
+            fetch(`${apiUrl}/${type}/${movieId}?api_key=${apiKey}&language=pt-BR`, {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(filme => {
+                const movieTitle = filme.title || filme.name;
+                const posterPath = filme.poster_path ? `${imageBaseUrl}${filme.poster_path}` : '';
+                const movieOverview = filme.overview;
+                const movieGenre = filme.genres.map(genre => genre.name).join(', ');
+                const movieRuntime = type === 'movie' ? `${filme.runtime} min` : `${filme.episode_run_time[0]} min`;
+                const movieReleaseDate = filme.release_date || filme.first_air_date;
+                saveFavoriteMovie(movieId, movieTitle, posterPath, movieOverview, movieGenre, movieRuntime, movieReleaseDate);
+            });
+        });
+    }
 });
 
 async function fetchDetails(id, type) {
@@ -87,87 +113,31 @@ function viewMovieDetails(movieId, type) {
     window.location.href = `detalhes.html?id=${movieId}&type=${type}`;
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.querySelector('.navbar-toggler');
-    const sidebar = document.querySelector('.sidebar');
+function saveFavoriteMovie(movieId, movieTitle, posterPath, overview, genre, runtime, releaseDate) {
+    let favorites = JSON.parse(localStorage.getItem('favoriteMovies')) || [];
 
-    toggleBtn.addEventListener('click', function () {
-        sidebar.classList.toggle('active');
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    const movieId = urlParams.get('id');
-    const movieType = urlParams.get('type');
-
-    // Função para salvar filme como favorito no localStorage
-    function saveFavoriteMovie(movieId, movieTitle, posterPath, overview, genre, runtime, releaseDate) {
-        let favorites = JSON.parse(localStorage.getItem('favoriteMovies')) || [];
-
-        // Verifica se o filme já está salvo como favorito
-        const existingMovie = favorites.find(movie => movie.id === movieId);
-        if (existingMovie) {
-            alert('Este filme já está salvo como favorito!');
-            return;
-        }
-
-        // Adiciona o filme aos favoritos
-        favorites.push({
-            id: movieId,
-            title: movieTitle,
-            poster: posterPath,
-            overview: overview,
-            genre: genre,
-            runtime: runtime,
-            releaseDate: releaseDate
-        });
-
-        // Salva a lista atualizada de favoritos no localStorage
-        localStorage.setItem('favoriteMovies', JSON.stringify(favorites));
-        alert('Filme salvo como favorito!');
+    // Verifica se o filme já está salvo como favorito
+    const existingMovie = favorites.find(movie => movie.id === movieId);
+    if (existingMovie) {
+        alert('Este filme já está salvo como favorito!');
+        return;
     }
 
-    // Evento para salvar filme como favorito quando o botão é clicado
-    const favoriteButton = document.getElementById('favoriteButton');
-    favoriteButton.addEventListener('click', function () {
-        fetch(`${apiUrl}/${movieType}/${movieId}?api_key=${apiKey}&language=pt-BR`, {
-            method: 'GET',
-          })
-          .then(response=>response.json())
-          .then(filme=>{
-            //pegar titulo do filme favorito
-            const movieTitle = filme.title || filme.name;
-            
-            //pegar desc do filme favorito
-            const posterPath = filme.poster_path ? `${imageBaseUrl}${filme.poster_path}` : '';
-      
-            //pegar poster do filme favorito
-            const movieOverview = filme.overview;
-      
-            //pegar genêro do filme favorito 
-            const movieGenre = filme.genres.map(genre => genre.name).join(', ');
-      
-            //tempo do filme favorito
-            const movieRuntime = movieType === 'movie' ? `${filme.runtime} min` : `${filme.episode_run_time[0]} min`;
-      
-            //data de lançamento
-            const movieReleaseDate = filme.release_date || filme.first_air_date;
-      
-            // Chamada para salvar o filme como favorito
-            saveFavoriteMovie(movieId, movieTitle, posterPath, movieOverview, movieGenre, movieRuntime, movieReleaseDate);
-          });
+    // Adiciona o filme aos favoritos
+    favorites.push({
+        id: movieId,
+        title: movieTitle,
+        poster: posterPath,
+        overview: overview,
+        genre: genre,
+        runtime: runtime,
+        releaseDate: releaseDate
     });
-});
 
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.querySelector('.navbar-toggler');
-    const sidebar = document.querySelector('.sidebar');
-
-    toggleBtn.addEventListener('click', function () {
-        sidebar.classList.toggle('active');
-    });
-});
+    // Salva a lista atualizada de favoritos no localStorage
+    localStorage.setItem('favoriteMovies', JSON.stringify(favorites));
+    alert('Filme salvo como favorito!');
+}
 
 function goBack() {
     window.history.back();
