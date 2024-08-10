@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSearch();
   setupDropdowns();
   setupPagination();
+  setupSearchAnimation();
 });
 
 function fetchMovies(categoryId = null, page = 1) {
@@ -79,43 +80,6 @@ function setupDropdowns() {
     });
   });
 }
-
-function setupSearch() {
-  const searchButton = document.getElementById('button-addon2');
-  searchButton.addEventListener('click', () => {
-    const searchText = document.getElementById('searchInput').value;
-    if (searchText.trim() !== '') {
-      searchMovies(searchText);
-    } else {
-      fetchMovies();
-    }
-  });
-}
-
-function searchMovies(query) {
-  const encodedQuery = encodeURIComponent(query);
-  const searchUrl = `${apiUrl}/search/movie?api_key=${apiKey}&language=pt-BR&query=${encodedQuery}`;
-
-  fetch(searchUrl)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Erro ao buscar filmes na API TheMovieDB.');
-      }
-      return response.json();
-    })
-    .then(data => {
-      if (data.results && data.results.length > 0) {
-        displayContent(data.results, 'movies-container');
-      } else {
-        const container = document.getElementById('movies-container');
-        container.innerHTML = '<p>Nenhum filme encontrado.</p>';
-      }
-    })
-    .catch(error => {
-      console.error('Erro ao buscar filmes na API TheMovieDB:', error);
-    });
-}
-
 
 function displayContent(items, containerId) {
   const container = document.getElementById(containerId);
@@ -220,7 +184,6 @@ function viewMovieDetails(movieId, type) {
   // Redireciona para a página de detalhes do filme com o ID do filme na query string
   window.location.href = `../destaque/detalhes.html?id=${movieId}&type=${type}`;
 }
-
 function setupPagination() {
   const prevPageButton = document.getElementById('prevPage');
   const nextPageButton = document.getElementById('nextPage');

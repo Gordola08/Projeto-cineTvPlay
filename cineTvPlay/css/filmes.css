@@ -163,3 +163,69 @@ footer {
     max-width: 150px; /* Aumenta o tamanho da logo em telas maiores */
   }
 }
+.dropdown-item {
+  padding: 10px;
+}
+
+.img-thumbnail {
+  width: 50px;
+  height: auto;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+/* Barra de Pesquisa */
+/* Barra de Pesquisa */
+.search-wrapper {
+  display: flex;
+  justify-content: flex-end; /* Ajusta a posição para o canto direito */
+  margin-top: 20px;
+  transition: all 0.3s ease;
+}
+
+.search-input {
+  width: 0; /* Inicialmente oculto */
+  height: 40px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: width 0.5s ease, box-shadow 0.5s ease;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0); /* Inicialmente sem sombra */
+}
+
+.search-input.expanded {
+  width: 250px; /* Largura desejada quando expandido */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.search-input.collapsed {
+  width: 0; /* Largura oculta quando colapsado */
+}
+
+.search-button {
+  height: 40px;
+  margin-left: -40px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.search-button i {
+  font-size: 20px;
+}
+
+/* Resultados da Pesquisa */
+#searchResults {
+  display: none; /* Inicialmente oculto */
+  position: absolute;
+  z-index: 1050; /* Garante que o dropdown fique acima de outros elementos */
+}
+
+/* Menu Dropdown */
+.dropdown-container {
+  margin-left: 10px; /* Espaçamento entre o campo de pesquisa e o dropdown */
+}
+
+.dropdown-menu {
+  position: absolute; /* Garante que o menu dropdown esteja posicionado corretamente */
+  z-index: 1050; /* Garante que o dropdown fique acima de outros elementos */
+}

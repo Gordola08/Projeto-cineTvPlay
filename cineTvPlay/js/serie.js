@@ -10,7 +10,6 @@ let currentType = null;
 document.addEventListener('DOMContentLoaded', () => {
   fetchSeries();
   setupPagination();
-  setupSearch();
   setupDropdowns();
 });
 
@@ -223,23 +222,3 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-function setupSearch() {
-  const searchInput = document.getElementById('searchInput');
-  const searchButton = document.getElementById('button-addon2');
-
-  searchButton.addEventListener('click', () => {
-    const query = searchInput.value.trim();
-    if (query !== '') {
-      searchSeries(query);
-    }
-  });
-
-  searchInput.addEventListener('keypress', event => {
-    if (event.key === 'Enter') {
-      const query = searchInput.value.trim();
-      if (query !== '') {
-        searchSeries(query);
-      }
-    }
-  });
-}

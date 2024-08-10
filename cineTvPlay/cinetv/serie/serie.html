@@ -20,13 +20,14 @@
   <!-- Navbar -->
   <nav class="navbar">
     <div class="container-fluid">
-      <img src="../../img/logoCineTvPlay.png" alt="cineTv Play Logo" class="d-block d-md-none logo-animation" style="width: 150px; height: auto;">
+      <img src="../../img/logoCineTvPlay.png" alt="cineTv Play Logo" class="d-block d-md-none logo-animation"
+        style="width: 150px; height: auto;">
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
     </div>
-  </nav>  
+  </nav>
 
   <!-- Menu lateral -->
   <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
@@ -54,14 +55,21 @@
     </div>
   </nav>
 
-   <!-- Conteúdo principal -->
-   <main class="col-md-9 ms-md-auto px-md-4">
-    <div class="input-group mb-3">
-      <input type="text" id="searchInput" class="form-control" placeholder="Buscar filmes..." aria-label="Buscar filmes"
-        aria-describedby="button-addon2">
-      <button class="btn btn-outline-secondary" type="button" id="button-addon2">Buscar</button>
+  <!-- Main Content -->
+  <main class="col-md-9 ms-md-auto px-md-4">
+    <!-- Barra de Pesquisa -->
+    <div class="input-group mb-1 search-wrapper">
+      <input type="text" id="searchInput" class="form-control d-none" placeholder="Buscar filmes..."
+        aria-label="Buscar filmes" aria-describedby="button-addon2">
+      <button class="btn btn-outline-secondary search-button" type="button" id="button-addon2">
+        <i class="bi bi-search"></i>
+      </button>
     </div>
-    <div class="dropdown mb-3">
+    <div id="searchResults" class="dropdown-menu" style="max-height: 400px; overflow-y: auto; width: 100%;"></div>
+
+
+    <!-- Dropdown de Categorias -->
+    <div class="input-group mb-3">
       <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
         aria-expanded="false">
         Categorias
@@ -77,7 +85,7 @@
       </ul>
     </div>
 
-    
+
 
     <div class="container mt-5">
       <h1 class="text-center mb-4">Séries</h1>
@@ -109,6 +117,7 @@
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/serie.js"></script>
+  <script src="../../js/pesquisa2.js"></script>
 </body>
 
 </html>
