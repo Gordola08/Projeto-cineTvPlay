@@ -229,3 +229,48 @@ footer {
   position: absolute; /* Garante que o menu dropdown esteja posicionado corretamente */
   z-index: 1050; /* Garante que o dropdown fique acima de outros elementos */
 }
+.modal-dialog {
+  max-height: 80vh; /* Ajuste conforme necessário */
+  overflow-y: auto; /* Permite rolagem vertical */
+}
+.modal-open {
+  overflow: hidden; /* Impede a rolagem quando o modal está aberto */
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5); /* Cor de fundo da tela preta */
+}
+
+/* Ajuste o estilo do modal se necessário */
+.modal {
+  overflow-y: auto; /* Permite rolagem no modal se necessário */
+}
+body.offcanvas-open {
+  overflow: auto !important; /* Força a rolagem do corpo */
+}
+
+
+/* Estilo para a lista de categorias */
+.list-group-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border: none;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* Estilo para a imagem da categoria */
+.category-img {
+  width: 50px; /* Ajuste conforme necessário */
+  height: 50px; /* Ajuste conforme necessário */
+  object-fit: cover;
+  border-radius: 5px;
+  margin-right: 10px; /* Espaçamento entre a imagem e o texto */
+}
+
+/* Ajuste no link da categoria para garantir que ele se alinhe com a imagem */
+.category-link a {
+  text-decoration: none;
+  color: #000; /* Cor do texto */
+  font-size: 1rem; /* Tamanho da fonte */
+}

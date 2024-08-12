@@ -6,6 +6,7 @@ const embedderBaseUrl = 'https://embedder.net/e/';
 let currentPage = 1;
 let currentCategory = null;
 let currentType = null;
+let totalPages = 1; // Adiciona uma variável para rastrear o total de páginas
 
 document.addEventListener('DOMContentLoaded', () => {
   fetchSeries();

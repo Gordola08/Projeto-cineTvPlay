@@ -3,16 +3,19 @@ const apiUrl = 'https://api.themoviedb.org/3';
 const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
 
 let currentPage = 1;
+let totalPages = 1;
 
 document.addEventListener('DOMContentLoaded', () => {
   fetchMovies();
   setupSearch();
-  setupDropdowns();
   setupPagination();
   setupSearchAnimation();
+  setupCategorySelection();
 });
 
 function fetchMovies(categoryId = null, page = 1) {
+  if (page > totalPages) return; // Previne requisições para páginas que não existem
+
   let url = `${apiUrl}/movie/popular?api_key=${apiKey}&language=pt-BR&page=${page}`;
   if (categoryId) {
     url = `${apiUrl}/discover/movie?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`;
@@ -21,6 +24,7 @@ function fetchMovies(categoryId = null, page = 1) {
   fetch(url)
     .then(response => response.json())
     .then(data => {
+      totalPages = data.total_pages; // Atualiza o total de páginas
       const movies = data.results;
       filterMoviesWithVideos(movies);
     })
@@ -32,31 +36,34 @@ function fetchMovies(categoryId = null, page = 1) {
 
 function filterMoviesWithVideos(movies) {
   const moviesWithVideos = [];
-  let processedMovies = 0;
+  const maxConcurrentRequests = 5; // Número máximo de requisições simultâneas
+  let index = 0;
 
-  movies.forEach(movie => {
-    const movieId = movie.id;
-    const videoUrl = `${apiUrl}/movie/${movieId}/videos?api_key=${apiKey}&language=pt-BR`;
+  function fetchNextBatch() {
+    const batch = movies.slice(index, index + maxConcurrentRequests);
+    index += maxConcurrentRequests;
 
-    fetch(videoUrl)
-      .then(response => response.json())
-      .then(data => {
-        if (data.results && data.results.length > 0) {
-          moviesWithVideos.push(movie);
-        }
-        processedMovies++;
-        if (processedMovies === movies.length) {
-          if (moviesWithVideos.length === 0) {
-            displayNotFoundMessage('Nenhum filme encontrado com vídeos disponíveis.');
-          } else {
-            displayContent(moviesWithVideos, 'movies-container');
+    const fetchPromises = batch.map(movie => {
+      const movieId = movie.id;
+      const videoUrl = `${apiUrl}/movie/${movieId}/videos?api_key=${apiKey}&language=pt-BR`;
+
+      return fetch(videoUrl)
+        .then(response => response.json())
+        .then(data => {
+          if (data.results && data.results.length > 0) {
+            moviesWithVideos.push(movie);
           }
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching video for movie:', error);
-        processedMovies++;
-        if (processedMovies === movies.length) {
+        })
+        .catch(error => {
+          console.error('Error fetching video for movie:', error);
+        });
+    });
+
+    Promise.all(fetchPromises)
+      .then(() => {
+        if (index < movies.length) {
+          fetchNextBatch(); // Busca o próximo lote
+        } else {
           if (moviesWithVideos.length === 0) {
             displayNotFoundMessage('Nenhum filme encontrado com vídeos disponíveis.');
           } else {
@@ -64,21 +71,67 @@ function filterMoviesWithVideos(movies) {
           }
         }
       });
+  }
+
+  fetchNextBatch(); // Inicia o processo
+}
+
+function loadMoviesByCategory(categoryId) {
+  currentPage = 1; // Reseta a página ao mudar de categoria
+  totalPages = 1; // Reseta o total de páginas
+  fetchMovies(categoryId);
+}
+
+function displayMovies(movies) {
+  const moviesContainer = document.getElementById('moviesContainer');
+  moviesContainer.innerHTML = '';
+
+  movies.forEach(movie => {
+    const movieElement = document.createElement('div');
+    movieElement.className = 'movie';
+    movieElement.innerHTML = `
+      <img src="${imageBaseUrl}${movie.poster_path}" alt="${movie.title}" class="movie-img">
+      <h3>${movie.title}</h3>
+      <p>${movie.overview}</p>
+    `;
+    moviesContainer.appendChild(movieElement);
   });
 }
 
-function setupDropdowns() {
-  const categoryMenu = document.getElementById('categoryMenu');
-
-  categoryMenu.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', event => {
-      event.preventDefault();
-      const categoryName = event.target.textContent;
-      document.getElementById('dropdownMenuButton').textContent = categoryName;
-      const categoryId = event.target.getAttribute('data-category');
-      fetchMovies(categoryId, 1);
-    });
+function setupSearch() {
+  const searchButton = document.getElementById('button-addon2');
+  searchButton.addEventListener('click', () => {
+    const searchText = document.getElementById('searchInput').value;
+    if (searchText.trim() !== '') {
+      searchMovies(searchText);
+    } else {
+      fetchMovies();
+    }
   });
+}
+
+function searchMovies(query) {
+  const encodedQuery = encodeURIComponent(query);
+  const searchUrl = `${apiUrl}/search/movie?api_key=${apiKey}&language=pt-BR&query=${encodedQuery}`;
+
+  fetch(searchUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro ao buscar filmes na API TheMovieDB.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.results && data.results.length > 0) {
+        displayContent(data.results, 'movies-container');
+      } else {
+        const container = document.getElementById('movies-container');
+        container.innerHTML = '<p>Nenhum filme encontrado.</p>';
+      }
+    })
+    .catch(error => {
+      console.error('Erro ao buscar filmes na API TheMovieDB:', error);
+    });
 }
 
 function displayContent(items, containerId) {
@@ -99,67 +152,8 @@ function displayContent(items, containerId) {
         </div>
       </div>
     `;
-
-// Função para adicionar os event listeners
-function addMobileEventListeners(card) {
-  card.addEventListener('touchstart', showOverlay); // Usar touchstart em vez de mouseover
-  card.addEventListener('touchend', hideOverlay);   // Usar touchend em vez de mouseout
-}
-
-// Função para remover os event listeners
-function removeMobileEventListeners(card) {
-  card.removeEventListener('touchstart', showOverlay);
-  card.removeEventListener('touchend', hideOverlay);
-}
-
-// Funções para mostrar e esconder a sobreposição
-function showOverlay() {
-  this.querySelector('.card-overlay').style.display = 'block';
-}
-
-function hideOverlay() {
-  this.querySelector('.card-overlay').style.display = 'none';
-}
-
-// Função para verificar se o dispositivo é móvel
-function isMobile() {
-  return window.matchMedia("(max-width: 768px)").matches;
-}
-
-// Seleciona todos os cards
-const cards = document.querySelectorAll('.card');
-
-// Adiciona ou remove os event listeners conforme o dispositivo
-cards.forEach(card => {
-  if (isMobile()) {
-    addMobileEventListeners(card);
-  } else {
-    removeMobileEventListeners(card);
-  }
-});
-
-// Atualiza os event listeners ao redimensionar a janela
-window.addEventListener('resize', () => {
-  cards.forEach(card => {
-    if (isMobile()) {
-      addMobileEventListeners(card);
-    } else {
-      removeMobileEventListeners(card);
-    }
+    container.appendChild(card);
   });
-});
-
-
-container.appendChild(card);
-});
-
-
-  // Verificação para dispositivos móveis
-  if (window.innerWidth < 768) {
-    container.querySelectorAll('.card-overlay').forEach(overlay => {
-      overlay.style.display = 'none'; // Oculta a sobreposição
-    });
-  }
 }
 
 function getStarRating(voteAverage) {
@@ -181,9 +175,9 @@ function displayNotFoundMessage(message) {
 }
 
 function viewMovieDetails(movieId, type) {
-  // Redireciona para a página de detalhes do filme com o ID do filme na query string
   window.location.href = `../destaque/detalhes.html?id=${movieId}&type=${type}`;
 }
+
 function setupPagination() {
   const prevPageButton = document.getElementById('prevPage');
   const nextPageButton = document.getElementById('nextPage');
@@ -196,16 +190,73 @@ function setupPagination() {
   });
 
   nextPageButton.addEventListener('click', () => {
-    currentPage++;
-    fetchMovies(null, currentPage);
+    if (currentPage < totalPages) {
+      currentPage++;
+      fetchMovies(null, currentPage);
+    }
   });
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  const toggleBtn = document.querySelector('.navbar-toggler');
-  const sidebar = document.querySelector('.sidebar');
+function setupCategorySelection() {
+  document.querySelectorAll('.category-link').forEach(link => {
+    link.addEventListener('click', function(event) {
+      event.preventDefault(); // Evita o comportamento padrão do link
 
-  toggleBtn.addEventListener('click', function () {
-    sidebar.classList.toggle('active');
+      const categoryId = this.getAttribute('data-category'); // Pega o ID da categoria
+      console.log('Categoria selecionada:', categoryId);
+
+      // Carrega os filmes da categoria selecionada
+      loadMoviesByCategory(categoryId);
+
+      // Remove a tela preta (modal-backdrop) e restaura o corpo da página
+      const offcanvasElement = document.getElementById('categoryOffcanvas');
+      if (offcanvasElement) {
+        const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+        if (offcanvas) {
+          offcanvas.hide();
+        }
+      }
+
+      // Remove a tela preta (modal-backdrop) e restaura o corpo da página
+      const backdrop = document.querySelector('.offcanvas-backdrop');
+      if (backdrop) {
+        backdrop.remove();
+      }
+
+      // Remove o estilo de overflow do corpo
+      document.body.classList.remove('offcanvas-open');
+      document.body.style.overflow = ''; // Garante que a rolagem esteja ativada
+    });
   });
-});
+}
+
+function setupOffcanvas() {
+  document.querySelectorAll('.category-link').forEach(link => {
+    link.addEventListener('click', async function (event) {
+      event.preventDefault(); // Evita o comportamento padrão do link
+
+      const categoryId = this.getAttribute('data-category');
+      console.log('Categoria selecionada:', categoryId);
+
+      // Carrega os filmes da categoria selecionada
+      await loadMoviesByCategory(categoryId);
+
+      // Fecha o offcanvas
+      const offcanvasElement = document.getElementById('categoryOffcanvas');
+      const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+      if (offcanvas) {
+        offcanvas.hide();
+      }
+
+      // Remove a tela preta e restaura o overflow
+      document.body.classList.remove('offcanvas-open');
+      document.body.style.overflow = 'auto';
+    });
+  });
+}
+
+// Chama a função para configurar o offcanvas
+document.addEventListener('DOMContentLoaded', setupOffcanvas);
+
+
+
