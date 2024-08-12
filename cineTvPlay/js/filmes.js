@@ -152,9 +152,67 @@ function displayContent(items, containerId) {
         </div>
       </div>
     `;
-    container.appendChild(card);
-  });
-}
+        // Função para adicionar os event listeners
+        function addMobileEventListeners(card) {
+          card.addEventListener('touchstart', showOverlay); // Usar touchstart em vez de mouseover
+          card.addEventListener('touchend', hideOverlay);   // Usar touchend em vez de mouseout
+        }
+    
+        // Função para remover os event listeners
+        function removeMobileEventListeners(card) {
+          card.removeEventListener('touchstart', showOverlay);
+          card.removeEventListener('touchend', hideOverlay);
+        }
+    
+        // Funções para mostrar e esconder a sobreposição
+        function showOverlay() {
+          this.querySelector('.card-overlay').style.display = 'block';
+        }
+    
+        function hideOverlay() {
+          this.querySelector('.card-overlay').style.display = 'none';
+        }
+    
+        // Função para verificar se o dispositivo é móvel
+        function isMobile() {
+          return window.matchMedia("(max-width: 768px)").matches;
+        }
+    
+        // Seleciona todos os cards
+        const cards = document.querySelectorAll('.card');
+    
+        // Adiciona ou remove os event listeners conforme o dispositivo
+        cards.forEach(card => {
+          if (isMobile()) {
+            addMobileEventListeners(card);
+          } else {
+            removeMobileEventListeners(card);
+          }
+        });
+    
+        // Atualiza os event listeners ao redimensionar a janela
+        window.addEventListener('resize', () => {
+          cards.forEach(card => {
+            if (isMobile()) {
+              addMobileEventListeners(card);
+            } else {
+              removeMobileEventListeners(card);
+            }
+          });
+        });
+    
+    
+        container.appendChild(card);
+      });
+    
+      // Verificação para dispositivos móveis
+      if (window.innerWidth < 768) {
+        container.querySelectorAll('.card-overlay').forEach(overlay => {
+          overlay.style.display = 'none'; // Oculta a sobreposição
+        });
+      }
+    }
+
 
 function getStarRating(voteAverage) {
   const stars = Math.round(voteAverage / 2);
