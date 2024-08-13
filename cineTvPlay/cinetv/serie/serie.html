@@ -45,8 +45,8 @@
         <a href="../perfil/perfil.html" class="list-group-item list-group-item-action bg-dark text-white">
           <i class="bi bi-person"></i> Perfil
         </a>
-        <a href="ativar/ativar-cinetv.html" class="list-group-item list-group-item-action bg-dark text-white">
-          <i class="bi bi-power"></i> Ativar CineTv
+        <a href="../config/config.html" class="list-group-item list-group-item-action bg-dark text-white">
+          <i class="bi bi-gear-wide"></i> Configuração
         </a>
         <a href="../../index.html" class="list-group-item list-group-item-action bg-dark text-white">
           <i class="bi bi-box-arrow-right"></i> sair
@@ -68,66 +68,43 @@
     <div id="searchResults" class="dropdown-menu" style="max-height: 400px; overflow-y: auto; width: 100%;"></div>
 
 
-    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#categoryOffcanvas" aria-controls="categoryOffcanvas">
-      Escolher Categoria
-    </button>
-    
-    <!-- Offcanvas -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="categoryOffcanvas" aria-labelledby="categoryOffcanvasLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="categoryOffcanvasLabel">Escolha uma Categoria</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      
-      <div class="offcanvas-body">
-        <p class="offcanvas-info">Selecione uma categoria. Caso o conteúdo não apareça imediatamente, por favor, clique na categoria duas vezes.</p>
-        <ul class="list-group">
-          <li class="list-group-item category-link">
-            <span class="category-icon">&#128102;</span> Desenhos
-          </li>
-          <li class="list-group-item category-link">
-            <span class="category-icon">&#128578;</span> Comédia
-          </li>
-          <li class="list-group-item category-link">
-            <span class="category-icon">&#127915;</span> Drama
-          </li>
-          <li class="list-group-item category-link">
-            <span class="category-icon">&#128187;</span> Ação
-          </li>
-          <li class="list-group-item category-link">
-            <span class="category-icon">&#128070;</span> Aventura
-          </li>
-          <li class="list-group-item category-link">
-            <span class="category-icon">&#127919;</span> Dorama
-          </li>
-        </ul>
+    <div class="dropdown mb-3">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
+        aria-expanded="false">
+        Categorias
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <li><a class="dropdown-item" href="#" data-category="16" data-type="anime">Animes</a></li>
+        <li><a class="dropdown-item" href="#" data-category="16" data-type="cartoon">Desenhos</a></li>
+        <li><a class="dropdown-item" href="#" data-category="35">Comédia</a></li>
+        <li><a class="dropdown-item" href="#" data-category="18">Drama</a></li>
+        <li><a class="dropdown-item" href="#" data-category="28">Ação</a></li>
+        <li><a class="dropdown-item" href="#" data-category="12">Aventura</a></li>
+        <li><a class="dropdown-item" href="#" data-category="10762">Dorama</a></li>
+      </ul>
+    </div>
+
+
+
+    <div class="container mt-5">
+      <h1 class="text-center mb-4">Séries</h1>
+      <div id="series-container" class="row">
+
       </div>
     </div>
 
-          <div class="container mt-5">
-            <h1 class="text-center mb-4">Séries</h1>
-            <div id="series-container" class="row">
-
-            </div>
-          </div>
-
-          <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-              <li class="page-item">
-                <a class="page-link" href="#" id="prevPage">Anterior</a>
-              </li>
-              <li class="page-item">
-                <a class="page-link" href="#" id="nextPage">Próxima</a>
-              </li>
-            </ul>
-          </nav>
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item">
+          <a class="page-link" href="#" id="prevPage">Anterior</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#" id="nextPage">Próxima</a>
+        </li>
+      </ul>
+    </nav>
   </main>
-
-  <!-- Footer -->
-  <footer class="bg-dark text-center text-white py-4 mt-5">
-    <p>&copy; 2024 cineTv Play. Todos os direitos reservados.</p>
-  </footer>
-
+  
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>

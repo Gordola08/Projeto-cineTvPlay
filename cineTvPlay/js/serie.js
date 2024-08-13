@@ -6,12 +6,13 @@ const embedderBaseUrl = 'https://embedder.net/e/';
 let currentPage = 1;
 let currentCategory = null;
 let currentType = null;
-let totalPages = 1; // Adiciona uma variável para rastrear o total de páginas
 
 document.addEventListener('DOMContentLoaded', () => {
-  fetchSeries();
+  fetchSeries(); // Carrega a série inicial
   setupPagination();
+  setupSearch();
   setupDropdowns();
+  updateEventListeners();
 });
 
 function setupDropdowns() {
@@ -27,16 +28,21 @@ function setupDropdowns() {
       const categoryId = event.target.getAttribute('data-category');
       const type = event.target.getAttribute('data-type');
 
-      fetchSeries(categoryId, type, 1);
+      console.log(`Categoria selecionada: ${categoryName}, ID: ${categoryId}, Tipo: ${type}`);
+
+      // Atualiza a categoria e o tipo atuais
+      currentCategory = categoryId;
+      currentType = type;
+
+      // Recarrega a série com a nova categoria e tipo
+      fetchSeries(currentCategory, currentType, 1);
     });
   });
 }
 
 function fetchSeries(categoryId = null, type = null, page = 1) {
-  currentCategory = categoryId;
-  currentType = type;
   currentPage = page;
-
+  
   let url = `${apiUrl}/tv/popular?api_key=${apiKey}&language=pt-BR&page=${page}`;
 
   if (categoryId) {
@@ -44,20 +50,12 @@ function fetchSeries(categoryId = null, type = null, page = 1) {
       url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&with_keywords=210024&page=${page}`; // Filtrando por Anime
     } else if (categoryId === '16' && type === 'cartoon') {
       url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&without_keywords=210024&page=${page}`; // Filtrando por Desenho
-    } else if (categoryId === '35') {
-      url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`; // Filtrando por Comédia
-    } else if (categoryId === '18') {
-      url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`; // Filtrando por Drama
-    } else if (categoryId === '28') {
-      url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`; // Filtrando por Ação
-    } else if (categoryId === '12') {
-      url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`; // Filtrando por Aventura
-    } else if (categoryId === '10762') {
-      url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`; // Filtrando por Dorama
     } else {
       url = `${apiUrl}/discover/tv?api_key=${apiKey}&language=pt-BR&with_genres=${categoryId}&page=${page}`;
     }
   }
+
+  console.log(`URL da requisição: ${url}`);
 
   fetch(url)
     .then(response => {
@@ -67,7 +65,14 @@ function fetchSeries(categoryId = null, type = null, page = 1) {
       return response.json();
     })
     .then(data => {
-      displayContent(data.results, 'series-container');
+      if (data.results) {
+        console.log('Dados recebidos:', data.results);
+        displayContent(data.results, 'series-container');
+      } else {
+        console.error('Nenhum resultado encontrado.');
+        const container = document.getElementById('series-container');
+        container.innerHTML = '<p>Nenhuma série encontrada.</p>';
+      }
     })
     .catch(error => {
       console.error('Erro ao buscar séries:', error);
@@ -78,11 +83,9 @@ function getStars(vote_average) {
   const stars = Math.round(vote_average / 2);
   let starHtml = '';
   for (let i = 0; i < 5; i++) {
-    if (i < stars) {
-      starHtml += '<span class="bi bi-star-fill" style="color: blue;"></span>';
-    } else {
-      starHtml += '<span class="bi bi-star" style="color: blue;"></span>';
-    }
+    starHtml += i < stars
+      ? '<span class="bi bi-star-fill" style="color: blue;"></span>'
+      : '<span class="bi bi-star" style="color: blue;"></span>';
   }
   return starHtml;
 }
@@ -105,70 +108,19 @@ function displayContent(items, containerId) {
         </div>
       </div>
     `;
-    
-// Função para adicionar os event listeners
-function addMobileEventListeners(card) {
-  card.addEventListener('touchstart', showOverlay); // Usar touchstart em vez de mouseover
-  card.addEventListener('touchend', hideOverlay);   // Usar touchend em vez de mouseout
-}
-
-// Função para remover os event listeners
-function removeMobileEventListeners(card) {
-  card.removeEventListener('touchstart', showOverlay);
-  card.removeEventListener('touchend', hideOverlay);
-}
-
-// Funções para mostrar e esconder a sobreposição
-function showOverlay() {
-  this.querySelector('.card-overlay').style.display = 'block';
-}
-
-function hideOverlay() {
-  this.querySelector('.card-overlay').style.display = 'none';
-}
-
-// Função para verificar se o dispositivo é móvel
-function isMobile() {
-  return window.matchMedia("(max-width: 768px)").matches;
-}
-
-// Seleciona todos os cards
-const cards = document.querySelectorAll('.card');
-
-// Adiciona ou remove os event listeners conforme o dispositivo
-cards.forEach(card => {
-  if (isMobile()) {
-    addMobileEventListeners(card);
-  } else {
-    removeMobileEventListeners(card);
-  }
-});
-
-// Atualiza os event listeners ao redimensionar a janela
-window.addEventListener('resize', () => {
-  cards.forEach(card => {
-    if (isMobile()) {
-      addMobileEventListeners(card);
-    } else {
-      removeMobileEventListeners(card);
-    }
-  });
-});
-
-
     container.appendChild(card);
   });
 
-  // Verificação para dispositivos móveis
+  updateEventListeners(); // Atualiza os event listeners após adicionar os cards
+
   if (window.innerWidth < 768) {
     container.querySelectorAll('.card-overlay').forEach(overlay => {
-      overlay.style.display = 'none'; // Oculta a sobreposição
+      overlay.style.display = 'none'; // Oculta a sobreposição em dispositivos móveis
     });
   }
 }
 
 function viewSeriesDetails(seriesId, type) {
-  // Redireciona para a página de detalhes da série com os parâmetros ID da série e tipo
   const detalhesUrl = `../destaque/detalhes2.html?id=${seriesId}&type=${type}`;
   window.location.href = detalhesUrl;
 }
@@ -214,6 +166,71 @@ function setupPagination() {
   });
 }
 
+function setupSearch() {
+  const searchInput = document.getElementById('searchInput');
+  const searchButton = document.getElementById('button-addon2');
+
+  searchButton.addEventListener('click', () => {
+    const query = searchInput.value.trim();
+    if (query !== '') {
+      searchSeries(query);
+    }
+  });
+
+  searchInput.addEventListener('keypress', event => {
+    if (event.key === 'Enter') {
+      const query = searchInput.value.trim();
+      if (query !== '') {
+        searchSeries(query);
+      }
+    }
+  });
+}
+
+function updateEventListeners() {
+  // Atualiza os event listeners para os cards após a atualização do conteúdo
+  const cards = document.querySelectorAll('.card');
+  
+  function addMobileEventListeners(card) {
+    card.addEventListener('touchstart', showOverlay);
+    card.addEventListener('touchend', hideOverlay);
+  }
+  
+  function removeMobileEventListeners(card) {
+    card.removeEventListener('touchstart', showOverlay);
+    card.removeEventListener('touchend', hideOverlay);
+  }
+  
+  function showOverlay() {
+    this.querySelector('.card-overlay').style.display = 'block';
+  }
+  
+  function hideOverlay() {
+    this.querySelector('.card-overlay').style.display = 'none';
+  }
+  
+  function isMobile() {
+    return window.matchMedia("(max-width: 768px)").matches;
+  }
+
+  cards.forEach(card => {
+    if (isMobile()) {
+      addMobileEventListeners(card);
+    } else {
+      removeMobileEventListeners(card);
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    cards.forEach(card => {
+      if (isMobile()) {
+        addMobileEventListeners(card);
+      } else {
+        removeMobileEventListeners(card);
+      }
+    });
+  });
+}
 document.addEventListener("DOMContentLoaded", function () {
   const toggleBtn = document.querySelector('.navbar-toggler');
   const sidebar = document.querySelector('.sidebar');
@@ -222,4 +239,3 @@ document.addEventListener("DOMContentLoaded", function () {
     sidebar.classList.toggle('active');
   });
 });
-

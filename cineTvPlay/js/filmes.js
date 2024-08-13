@@ -316,5 +316,12 @@ function setupOffcanvas() {
 // Chama a função para configurar o offcanvas
 document.addEventListener('DOMContentLoaded', setupOffcanvas);
 
+document.addEventListener("DOMContentLoaded", function () {
+  const toggleBtn = document.querySelector('.navbar-toggler');
+  const sidebar = document.querySelector('.sidebar');
 
+  toggleBtn.addEventListener('click', function () {
+    sidebar.classList.toggle('active');
+  });
+});
 
