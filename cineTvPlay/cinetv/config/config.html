@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br" data-bs-theme="dark">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,26 +14,140 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 1000;
+      width: 200px;
+      background-color: #00000090;
+      overflow-y: auto;
+      transition: transform 0.3s ease-in-out;
+      padding-top: 3.5rem;
       height: 100vh;
-      padding-top: 1rem;
     }
+
+    .sidebar-heading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      font-size: 1.5rem;
+      color: #ffffff;
+    }
+
+    .list-group-item {
+      background-color: transparent;
+      border: none;
+      color: #ffffff;
+      padding: 1rem;
+    }
+
+    .list-group-item:hover {
+      background-color: #00000090;
+    }
+
+    .list-group-item.active {
+      background-color: #00000090;
+    }
+
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+        display: none;
+        /* Para ocultar o menu lateral em dispositivos móveis inicialmente */
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+        display: block;
+        /* Para exibir o menu lateral quando estiver aberto */
+      }
+
+      .container {
+        margin-left: 0;
+      }
+    }
+
+    /* Animação */
+    @keyframes bounce {
+
+      0%,
+      20%,
+      50%,
+      80%,
+      100% {
+        transform: translateY(0);
+      }
+
+      40% {
+        transform: translateY(-20px);
+      }
+
+      60% {
+        transform: translateY(-10px);
+      }
+    }
+
     .logo-animation {
-      width: 150px;
-      animation: logo-spin infinite 10s linear;
+      animation: bounce 2s infinite;
+      max-width: 100px;
+      height: auto;
     }
-    @keyframes logo-spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+
+    /* Certificando que a logo será exibida corretamente em todos os dispositivos */
+    @media (min-width: 576px) {
+      .logo-animation {
+        max-width: 150px;
+        /* Aumenta o tamanho da logo em telas maiores */
+      }
     }
+
     .content {
-      margin-left: 250px; /* Ajusta o espaço do conteúdo principal */
+      margin-left: 250px;
+      /* Ajusta o espaço do conteúdo principal */
       padding: 20px;
+    }
+
+    /* Ajustes adicionais para responsividade */
+    .user-avatar-container {
+      position: absolute;
+      top: 10px;
+      /* Ajusta a posição para cima */
+      right: 10px;
+      z-index: 1040;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Ajustes para dispositivos móveis */
+    @media (max-width: 768px) {
+      .user-avatar-container {
+        top: 90px;
+        /* Mantém a posição fixa no topo */
+        right: 10px;
+        /* Mantém o posicionamento à direita */
+      }
+    }
+
+    #user-name {
+      margin-top: 5px;
+      /* Espaço entre a imagem e o texto */
+      color: #f00;
+      /* Cor padrão vermelha */
+    }
+
+    .user-name-pass {
+      color: #0f0;
+      /* Cor verde para "Pass" */
     }
   </style>
 </head>
+
 <body>
 
-      <!-- Navbar -->
+  <!-- Navbar -->
   <nav class="navbar">
     <div class="container-fluid">
       <img src="../../img/logoCineTvPlay.png" alt="cineTv Play Logo" class="d-block d-md-none logo-animation">
@@ -43,6 +158,13 @@
     </div>
   </nav>
 
+  <!-- Avatar do usuário fora da navbar -->
+  <div class="user-avatar-container">
+    <img id="avatarUsuario" alt="Avatar do Usuário" class="rounded-circle" width="75">
+    <p id="user-name">Sem Pess</p>
+  </div>
+
+
   <!-- Menu lateral -->
   <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
     <div class="position-sticky">
@@ -52,28 +174,39 @@
       <div class="list-group list-group-flush">
         <a href="../index.html" class="list-group-item list-group-item-action bg-dark text-white">
           <i class="bi bi-house-door"></i> Home
-        <a href="../../index.html" class="list-group-item list-group-item-action bg-dark text-white">
-          <i class="bi bi-box-arrow-right"></i> Sair
-        </a>
+          <a href="../../index.html" class="list-group-item list-group-item-action bg-dark text-white">
+            <i class="bi bi-box-arrow-right"></i> Sair
+          </a>
       </div>
     </div>
   </nav>
 
- <!-- Conteúdo principal -->
- <div class="content">
-    <div class="container">
-      <h1>VIP - CineTv Play</h1>
-      <p>Para ativar seu VIP, siga as instruções abaixo:</p>
-      <form>
-        <div class="mb-3">
-          <label for="userId" class="form-label">ID do Usuário</label>
-          <input type="text" class="form-control" id="userId" placeholder="Digite seu ID de usuário">
-        </div>
-        <button type="submit" class="btn btn-primary">Ativar VIP</button>
-      </form>
-    </div>
+<!-- Conteúdo principal -->
+<div class="container-fluid">
+  <div class="row">
+    <main class="col-md-10 ms-md-auto px-md-1">
+      <div class="container">
+        <h1>VIP - CineTv Play</h1>
+        <p>Para ativar seu VIP, siga as instruções abaixo:</p>
+        <form id="vip-form">
+          <div class="mb-3">
+            <label for="userId" class="form-label">ID do Usuário</label>
+            <input type="text" class="form-control" id="userId" placeholder="Digite seu ID de usuário">
+          </div>
+          <div class="mb-3">
+            <label for="activationCode" class="form-label">Código de Ativação</label>
+            <input type="text" class="form-control" id="activationCode" placeholder="Digite o código de ativação">
+          </div>
+          <button type="submit" class="btn btn-primary">Ativar VIP</button>
+        </form>
+        <p id="status-message"></p>
+      </div>
+    </main>
   </div>
+</div>
 
-  <script src="../js/bootstrap.bundle.min.js"></script>
+
+  <script src="../../js/config.js"></script>
 </body>
+
 </html>

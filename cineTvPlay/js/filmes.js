@@ -325,3 +325,41 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+ // Verificar se há um usuário logado
+ const usuarioLogadoJSON = localStorage.getItem('usuario_logado');
+ if (usuarioLogadoJSON) {
+   const usuarioLogado = JSON.parse(usuarioLogadoJSON);
+   console.log('Usuário logado:', usuarioLogado);
+
+   const avatarElement = document.getElementById('avatarUsuario');
+   if (avatarElement) {
+     avatarElement.src = usuarioLogado.user.avatar;
+     avatarElement.alt = "Foto de Perfil";
+     avatarElement.classList.add('rounded-circle');
+     avatarElement.width = 75; // Tamanho do avatar
+   }
+ } else {
+   console.log('Nenhum usuário está logado.');
+ }
+
+  // Verificar se há um usuário logado
+  if (usuarioLogadoJSON) {
+    const usuarioLogado = JSON.parse(usuarioLogadoJSON);
+    console.log('Usuário logado:', usuarioLogado);
+
+    const userNameElement = document.getElementById('user-name');
+    if (usuarioLogado.user.Pess) {
+      userNameElement.textContent = 'Pass';
+      userNameElement.classList.remove('text-danger');
+      userNameElement.classList.add('text-success');
+    } else {
+      userNameElement.textContent = 'Sem Pess';
+      userNameElement.classList.remove('text-success');
+      userNameElement.classList.add('text-danger');
+    }
+  } else {
+    console.log('Nenhum usuário está logado.');
+    const userNameElement = document.getElementById('user-name');
+    userNameElement.textContent = 'Sem Pess';
+    userNameElement.classList.add('text-danger');
+  }

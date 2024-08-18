@@ -238,3 +238,59 @@ document.addEventListener("DOMContentLoaded", function () {
     sidebar.classList.toggle('active');
   });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Verificar se há um usuário logado no localStorage
+  const usuarioLogadoJSON = localStorage.getItem('usuario_logado');
+  if (usuarioLogadoJSON) {
+      const usuarioLogado = JSON.parse(usuarioLogadoJSON);
+      console.log('Usuário logado:', usuarioLogado);
+
+      // Configurar o avatar com base no localStorage
+      const avatarElement = document.getElementById('avatarUsuario');
+      if (avatarElement) {
+          avatarElement.src = usuarioLogado.user.avatar;
+          avatarElement.alt = "Foto de Perfil";
+          avatarElement.classList.add('rounded-circle');
+          avatarElement.width = 75; // Tamanho do avatar
+      }
+  }
+
+  // Obter o activationCode do Firebase Realtime Database
+  const userId = localStorage.getItem('userId'); // Supondo que você tenha o userId no localStorage
+  if (userId) {
+      fetch(`https://cinetvplay2-56923-default-rtdb.firebaseio.com/usuarios/${userId}.json`)
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('Não foi possível obter os dados do usuário do Firebase.');
+              }
+              return response.json();
+          })
+          .then(data => {
+              if (data && data.activationCode) {
+                  const userNameElement = document.getElementById('user-name');
+                  if (data.activationCode) {
+                      userNameElement.textContent = 'Pass';
+                      userNameElement.classList.remove('text-danger');
+                      userNameElement.classList.add('text-success');
+                  } else {
+                      userNameElement.textContent = 'Sem Pess';
+                      userNameElement.classList.remove('text-success');
+                      userNameElement.classList.add('text-danger');
+                  }
+              }
+          })
+          .catch(error => {
+              console.error('Erro ao obter dados do Firebase:', error);
+              const userNameElement = document.getElementById('user-name');
+              userNameElement.textContent = 'Erro ao carregar status';
+              userNameElement.classList.add('text-danger');
+          });
+  } else {
+      console.log('Nenhum ID de usuário encontrado no localStorage.');
+      const userNameElement = document.getElementById('user-name');
+      userNameElement.textContent = 'Sem Pess';
+      userNameElement.classList.add('text-danger');
+  }
+});
+

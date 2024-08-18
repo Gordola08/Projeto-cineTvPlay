@@ -105,14 +105,16 @@ function verificarUsuarioEmail() {
 function cadastrarNovoUsuario() {
     // Ler o arquivo de imagem selecionado pelo usuário
     var file = avatarInput.files[0];
-    if (file) {
-        var reader = new FileReader();
+    var reader = file ? new FileReader() : null;
+
+    if (reader) {
         reader.onload = function(e) {
             var dados = {
                 usuario: usuarioInput.value.trim(),
                 email: emailInput.value.trim(),
                 senha: senhaInput.value.trim(),
-                avatar: e.target.result // Base64 da imagem selecionada
+                avatar: e.target.result, // Base64 da imagem selecionada
+                activationCode: getActivationCode() // Adicionando o activationCode
             };
             salvarNoFirebase(dados);
         }
@@ -121,7 +123,8 @@ function cadastrarNovoUsuario() {
         var dados = {
             usuario: usuarioInput.value.trim(),
             email: emailInput.value.trim(),
-            senha: senhaInput.value.trim()
+            senha: senhaInput.value.trim(),
+            activationCode: getActivationCode() // Adicionando o activationCode
         };
         salvarNoFirebase(dados);
     }
@@ -152,4 +155,9 @@ function salvarNoFirebase(dados) {
         console.error('Erro ao salvar no Firebase:', error);
         mostrarAlerta('Ocorreu um erro ao salvar os dados. Tente novamente mais tarde.', 'danger');
     });
+}
+
+function getActivationCode() {
+    const vipData = JSON.parse(localStorage.getItem('vipData'));
+    return vipData ? vipData.activationCode : null;
 }

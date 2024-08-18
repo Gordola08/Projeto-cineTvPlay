@@ -16,7 +16,8 @@
 }
 
 .container {
-  padding-top: 100px; /* Espaço para a navbar fixa */
+  padding-top: 100px;
+  /* Espaço para a navbar fixa */
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
@@ -91,12 +92,14 @@ footer {
 @media (max-width: 992px) {
   .sidebar {
     transform: translateX(-100%);
-    display: none; /* Para ocultar o menu lateral em dispositivos móveis inicialmente */
+    display: none;
+    /* Para ocultar o menu lateral em dispositivos móveis inicialmente */
   }
 
   .sidebar.active {
     transform: translateX(0);
-    display: block; /* Para exibir o menu lateral quando estiver aberto */
+    display: block;
+    /* Para exibir o menu lateral quando estiver aberto */
   }
 
   .container {
@@ -105,7 +108,8 @@ footer {
 }
 
 .main-content {
-  margin-right: 100px; /* Altere este valor conforme necessário para obter a distância desejada */
+  margin-right: 100px;
+  /* Altere este valor conforme necessário para obter a distância desejada */
 }
 
 .carousel-inner {
@@ -145,12 +149,19 @@ footer {
 
 /* Animação */
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
+
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
+
   40% {
     transform: translateY(-20px);
   }
+
   60% {
     transform: translateY(-10px);
   }
@@ -165,35 +176,41 @@ footer {
 /* Certificando que a logo será exibida corretamente em todos os dispositivos */
 @media (min-width: 576px) {
   .logo-animation {
-    max-width: 150px; /* Aumenta o tamanho da logo em telas maiores */
+    max-width: 150px;
+    /* Aumenta o tamanho da logo em telas maiores */
   }
 }
 
 /* Barra de Pesquisa */
 .search-wrapper {
   display: flex;
-  justify-content: flex-end; /* Ajusta a posição para o canto direito */
+  justify-content: flex-end;
+  /* Ajusta a posição para o canto direito */
   margin-top: 20px;
   transition: all 0.3s ease;
 }
 
 .search-input {
-  width: 0; /* Inicialmente oculto */
+  width: 0;
+  /* Inicialmente oculto */
   height: 40px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   transition: width 0.5s ease, box-shadow 0.5s ease;
-  box-shadow: 0 0 0 rgba(0, 0, 0, 0); /* Inicialmente sem sombra */
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  /* Inicialmente sem sombra */
 }
 
 .search-input.expanded {
-  width: 250px; /* Largura desejada quando expandido */
+  width: 250px;
+  /* Largura desejada quando expandido */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .search-input.collapsed {
-  width: 0; /* Largura oculta quando colapsado */
+  width: 0;
+  /* Largura oculta quando colapsado */
 }
 
 .search-button {
@@ -210,9 +227,11 @@ footer {
 
 /* Resultados da Pesquisa */
 #searchResults {
-  display: none; /* Inicialmente oculto */
+  display: none;
+  /* Inicialmente oculto */
   position: absolute;
-  z-index: 1050; /* Garante que o dropdown fique acima de outros elementos */
+  z-index: 1050;
+  /* Garante que o dropdown fique acima de outros elementos */
 }
 
 .img-thumbnail {
@@ -220,4 +239,38 @@ footer {
   height: auto;
   border-radius: 5px;
   margin-right: 10px;
+}
+
+/* Ajustes adicionais para responsividade */
+.user-avatar-container {
+  position: absolute;
+  top: 10px;
+  /* Ajusta a posição para cima */
+  right: 10px;
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Ajustes para dispositivos móveis */
+@media (max-width: 768px) {
+  .user-avatar-container {
+    top: 90px;
+    /* Mantém a posição fixa no topo */
+    right: 10px;
+    /* Mantém o posicionamento à direita */
+  }
+}
+
+#user-name {
+  margin-top: 5px;
+  /* Espaço entre a imagem e o texto */
+  color: #f00;
+  /* Cor padrão vermelha */
+}
+
+.user-name-pass {
+  color: #0f0;
+  /* Cor verde para "Pass" */
 }
