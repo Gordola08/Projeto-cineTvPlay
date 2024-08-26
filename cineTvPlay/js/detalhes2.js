@@ -2,7 +2,7 @@ const apiKey = 'f929634d7d1ae9a3e4b1215ec7d38336';
 const apiUrl = 'https://api.themoviedb.org/3';
 const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
 const embedderBaseUrl = 'https://embedder.net/e/series';
-const firebaseUrl = 'https://cinetvplay2-56923-default-rtdb.firebaseio.com/usuario.json';
+const firebaseUrl = 'https://cinetvplay-5546c-default-rtdb.firebaseio.com/usuario.json';
 
 document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);

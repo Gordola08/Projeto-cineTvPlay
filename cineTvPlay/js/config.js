@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('Código de ativação no localStorage:', activationCode);
 
     if (activationCode) {
-      fetch(`https://cinetvplay2-56923-default-rtdb.firebaseio.com/usuarios.json?orderBy="activationCode"&equalTo="${activationCode}"`)
+      fetch(`https://cinetvplay-5546c-default-rtdb.firebaseio.com/usuarios.json?orderBy="activationCode"&equalTo="${activationCode}"`)
         .then(response => response.json())
         .then(data => {
           console.log('Dados obtidos do Firebase:', data);
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const userId = localStorage.getItem('userId'); // Assume que o ID do usuário está armazenado no localStorage
 
     if (userId) {
-      fetch(`https://cinetvplay2-56923-default-rtdb.firebaseio.com/usuarios/${userId}/vipdata.json`)
+      fetch(`https://cinetvplay-5546c-default-rtdb.firebaseio.com/usuarios/${userId}/vipdata.json`)
         .then(response => response.json())
         .then(data => {
           console.log('Dados VIP obtidos do Firebase:', data);
@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const statusMessage = document.getElementById('status-message');
     
     if (userId && activationCode) {
-      fetch(`https://cinetvplay2-56923-default-rtdb.firebaseio.com/usuarios/${userId}.json`, {
+      fetch(`https://cinetvplay-5546c-default-rtdb.firebaseio.com/usuarios/${userId}.json`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
