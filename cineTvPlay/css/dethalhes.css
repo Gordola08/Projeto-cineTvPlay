@@ -100,4 +100,37 @@ body {
       max-width: 150px; /* Aumenta o tamanho da logo em telas maiores */
     }
   }
+  .carousel-inner {
+    display: flex;
+    flex-wrap: nowrap;
+  }
+  
+  .carousel-item {
+    flex: 1 0 auto;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  /* Estilos dos cards */
+  .card {
+    border: none;
+    background-color: transparent;
+  }
+  
+  .card img {
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+  }
+  
+  .card img:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Título do filme/série */
+  .card-title {
+    font-size: 1rem;
+    margin-top: 10px;
+    color: #ffffff;
+  }
   

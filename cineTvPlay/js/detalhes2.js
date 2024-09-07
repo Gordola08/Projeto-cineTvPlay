@@ -2,7 +2,7 @@ const apiKey = 'f929634d7d1ae9a3e4b1215ec7d38336';
 const apiUrl = 'https://api.themoviedb.org/3';
 const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
 const embedderBaseUrl = 'https://embedder.net/e/series';
-const firebaseUrl = 'https://cinetvplay-5546c-default-rtdb.firebaseio.com/usuario.json';
+const firebaseUrl = 'https://cinetvplay3-default-rtdb.firebaseio.com/usuario.json';
 
 document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);
@@ -15,14 +15,14 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         console.error('Elemento com id "seriesId" não encontrado.');
     }
-    
+
     if (seriesId && type === 'tv') {
         fetchDetails(seriesId, type);
     }
-    
+
     const toggleBtn = document.querySelector('.navbar-toggler');
     const sidebar = document.querySelector('.sidebar');
-    
+
     if (toggleBtn && sidebar) {
         toggleBtn.addEventListener('click', function () {
             sidebar.classList.toggle('active');
@@ -82,11 +82,11 @@ function displayDetails(data, type) {
         option.textContent = `Temporada ${i}`;
         seasonSelect.appendChild(option);
     }
-    
+
     seasonSelect.addEventListener('change', function () {
         fetchEpisodes(this.value);
     });
-    
+
     fetchEpisodes(1); // Carrega os episódios da primeira temporada ao carregar a página
 }
 
@@ -105,7 +105,7 @@ async function fetchEpisodes(seasonNumber) {
             throw new Error('Erro ao buscar os episódios da temporada.');
         }
         const data = await response.json();
-        displayEpisodes(data.episodes, seriesId); // Passar o seriesId para displayEpisodes
+        displayEpisodes(data.episodes, seriesId);
     } catch (error) {
         console.error('Erro ao buscar episódios:', error);
     }
@@ -142,6 +142,7 @@ function displayEpisodes(episodes, seriesId) {
 
         const watchedIcon = document.createElement('span');
         watchedIcon.classList.add('watched-icon', 'ms-2', 'bi', 'bi-check-circle-fill'); // Bootstrap icon
+        watchedIcon.style.display = 'none'; // Inicialmente oculto
         episodeDetails.appendChild(watchedIcon);
 
         const notFinishedLabel = document.createElement('span');
@@ -149,13 +150,21 @@ function displayEpisodes(episodes, seriesId) {
         notFinishedLabel.textContent = 'Não terminou de assistir';
         episodeDetails.appendChild(notFinishedLabel);
 
-        updateWatchedIcon(seriesId, episode.season_number, episode.episode_number, watchedIcon, notFinishedLabel);
+        const finishedLabel = document.createElement('span');
+        finishedLabel.classList.add('finished-label', 'text-success', 'ms-2');
+        finishedLabel.textContent = 'Já assisti';
+        finishedLabel.style.display = 'none'; // Inicialmente oculto
+        episodeDetails.appendChild(finishedLabel);
+
+        updateWatchedIcon(seriesId, episode.season_number, episode.episode_number, watchedIcon, notFinishedLabel, finishedLabel);
 
         episodeDiv.appendChild(episodeDetails);
 
         episodeDiv.addEventListener('click', function () {
+            markEpisodeAsWatched(seriesId, episode.season_number, episode.episode_number);
             showEpisodeModal(seriesId, episode.season_number, episode.episode_number);
         });
+
 
         episodeContainer.appendChild(episodeDiv);
     });
@@ -165,7 +174,7 @@ function showEpisodeModal(seriesId, seasonNumber, episodeNumber) {
     const modal = document.getElementById('episodeModal');
     const modalTitle = document.getElementById('modalTitle');
     const modalContent = document.getElementById('modalContent');
-    
+
     fetchEpisodeDetails(seriesId, seasonNumber, episodeNumber, modalTitle, modalContent);
 
     const bootstrapModal = new bootstrap.Modal(modal);
@@ -246,110 +255,109 @@ function updateWatchedIcons() {
     });
 }
 
-async function saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeSelected, episodeId) {
-    let favorites = JSON.parse(localStorage.getItem('favoriteSeries')) || [];
+function updateWatchedIcon(seriesId, seasonNumber, episodeNumber, watchedIcon, notFinishedLabel) {
+    // Supondo que você tem uma forma de verificar se o episódio foi assistido, por exemplo, usando localStorage ou Firebase
+    const watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || {};
 
-    const existingSeries = favorites.find(series => series.id === seriesId);
-    if (existingSeries) {
-        alert('Esta série já está salva como favorita!');
+    // Construa uma chave para o episódio
+    const episodeKey = `${seriesId}-${seasonNumber}-${episodeNumber}`;
+
+    // Verifique se o episódio está na lista de assistidos
+    if (watchedEpisodes[episodeKey]) {
+        // Episódio assistido
+        watchedIcon.classList.add('text-success'); // Adiciona uma classe para o ícone de assistido (ajuste conforme necessário)
+        notFinishedLabel.textContent = 'Assistido';
+        notFinishedLabel.classList.add('text-success'); // Adiciona uma classe para o rótulo de assistido
+    } else {
+        // Episódio não assistido
+        watchedIcon.classList.remove('text-success'); // Remove a classe de assistido
+        notFinishedLabel.textContent = 'Não terminou de assistir';
+        notFinishedLabel.classList.remove('text-success'); // Remove a classe de assistido
+    }
+}
+
+
+function markEpisodeAsWatched(seriesId, seasonNumber, episodeNumber) {
+    // Supondo que você está usando localStorage para armazenar episódios assistidos
+    let watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || {};
+
+    const episodeKey = `${seriesId}-${seasonNumber}-${episodeNumber}`;
+    watchedEpisodes[episodeKey] = true; // Marca o episódio como assistido
+
+    localStorage.setItem('watchedEpisodes', JSON.stringify(watchedEpisodes));
+
+    // Atualiza a interface para refletir o status de assistido
+    updateWatchedIcon(seriesId, seasonNumber, episodeNumber, document.querySelector('.watched-icon'), document.querySelector('.not-finished'));
+}
+
+
+function updateWatchedIcon(seriesId, seasonNumber, episodeNumber, watchedIcon, notFinishedLabel) {
+    const watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || {};
+    const key = `${seriesId}_S${seasonNumber}_E${episodeNumber}`;
+
+    if (watchedEpisodes[key]) {
+        watchedIcon.style.display = 'inline';
+        notFinishedLabel.style.display = 'none';
+    } else {
+        watchedIcon.style.display = 'none';
+        notFinishedLabel.style.display = 'inline';
+    }
+}
+
+function saveFavoriteSeries(seriesId, title, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeId) {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        console.error('Usuário não está logado.');
         return;
     }
 
-    favorites.push({
-        id: seriesId,
-        title: seriesTitle,
-        poster: posterPath,
-        overview: overview,
-        genre: genre,
-        runtime: runtime,
-        releaseDate: releaseDate,
-        season: seasonSelected,
-        episode: episodeSelected,
-        episodeId: episodeId
-    });
+    fetch(firebaseUrl)
+        .then(response => response.json())
+        .then(data => {
+            const user = Object.values(data).find(user => user.userId === userId);
+            if (user) {
+                const favorites = user.favorites || [];
+                const favoriteSeries = {
+                    seriesId,
+                    title,
+                    posterPath,
+                    overview,
+                    genre,
+                    runtime,
+                    releaseDate,
+                    seasonSelected,
+                    episodeId
+                };
 
-    localStorage.setItem('favoriteSeries', JSON.stringify(favorites));
-    alert('Série salva como favorita!');
+                favorites.push(favoriteSeries);
 
-    await saveFavoriteToFirebase(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeSelected, episodeId); // Save to Firebase
-}
-
-function goBack() {
-    window.history.back();
-}
-
-async function saveFavoriteToFirebase(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeSelected, episodeId) {
-    const userId = getUserId(); // Assume there is a function that retrieves the user ID
-    const favoriteSeries = {
-        id: seriesId,
-        title: seriesTitle,
-        poster: posterPath,
-        overview: overview,
-        genre: genre,
-        runtime: runtime,
-        releaseDate: releaseDate,
-        season: seasonSelected,
-        episode: episodeSelected,
-        episodeId: episodeId
-    };
-
-    try {
-        const response = await fetch(`${firebaseUrl}/${userId}/favorites.json`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(favoriteSeries)
+                fetch(firebaseUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        [userId]: {
+                            ...user,
+                            favorites
+                        }
+                    })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log('Série favorita salva com sucesso.');
+                        } else {
+                            console.error('Erro ao salvar série favorita.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao salvar série favorita:', error);
+                    });
+            } else {
+                console.error('Usuário não encontrado.');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao buscar dados do usuário:', error);
         });
-
-        if (!response.ok) {
-            throw new Error('Erro ao salvar a série favorita no Firebase.');
-        }
-
-        alert('Série favorita salva no Firebase com sucesso!');
-    } catch (error) {
-        console.error('Erro ao salvar série favorita no Firebase:', error);
-    }
 }
-
-async function saveProgressToFirebase(seriesId, seasonNumber, episodeNumber) {
-    const userId = getUserId(); // Assume there is a function that retrieves the user ID
-    const progress = {
-        seriesId: seriesId,
-        season: seasonNumber,
-        episode: episodeNumber
-    };
-
-    try {
-        const response = await fetch(`${firebaseUrl}/${userId}/progress.json`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(progress)
-        });
-
-        if (!response.ok) {
-            throw new Error('Erro ao salvar o progresso no Firebase.');
-        }
-
-        console.log('Progresso salvo no Firebase com sucesso!');
-    } catch (error) {
-        console.error('Erro ao salvar progresso no Firebase:', error);
-    }
-}
-
-function getUserId() {
-    // Implementar lógica para recuperar o ID do usuário
-    // Isso pode ser feito por meio de autenticação ou armazenando um ID de usuário no localStorage
-    return 'usuario_id_exemplo'; // Substituir pelo ID real do usuário
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.querySelector('.navbar-toggler');
-    const sidebar = document.querySelector('.sidebar');
-  
-    toggleBtn.addEventListener('click', function () {
-      sidebar.classList.toggle('active');
-    });
-  });

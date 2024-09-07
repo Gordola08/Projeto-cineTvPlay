@@ -25,16 +25,16 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch(`${apiUrl}/${type}/${movieId}?api_key=${apiKey}&language=pt-BR`, {
                 method: 'GET',
             })
-            .then(response => response.json())
-            .then(filme => {
-                const movieTitle = filme.title || filme.name;
-                const posterPath = filme.poster_path ? `${imageBaseUrl}${filme.poster_path}` : '';
-                const movieOverview = filme.overview;
-                const movieGenre = filme.genres.map(genre => genre.name).join(', ');
-                const movieRuntime = type === 'movie' ? `${filme.runtime} min` : `${filme.episode_run_time[0]} min`;
-                const movieReleaseDate = filme.release_date || filme.first_air_date;
-                saveFavoriteMovie(movieId, movieTitle, posterPath, movieOverview, movieGenre, movieRuntime, movieReleaseDate);
-            });
+                .then(response => response.json())
+                .then(filme => {
+                    const movieTitle = filme.title || filme.name;
+                    const posterPath = filme.poster_path ? `${imageBaseUrl}${filme.poster_path}` : '';
+                    const movieOverview = filme.overview;
+                    const movieGenre = filme.genres.map(genre => genre.name).join(', ');
+                    const movieRuntime = type === 'movie' ? `${filme.runtime} min` : `${filme.episode_run_time[0]} min`;
+                    const movieReleaseDate = filme.release_date || filme.first_air_date;
+                    saveFavoriteMovie(movieId, movieTitle, posterPath, movieOverview, movieGenre, movieRuntime, movieReleaseDate);
+                });
         });
     }
 });
@@ -142,3 +142,12 @@ function saveFavoriteMovie(movieId, movieTitle, posterPath, overview, genre, run
 function goBack() {
     window.history.back();
 }
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtn = document.querySelector('.navbar-toggler');
+    const sidebar = document.querySelector('.sidebar');
+
+    toggleBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('active');
+    });
+});
+
