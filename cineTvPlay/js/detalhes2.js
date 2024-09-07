@@ -361,3 +361,19 @@ function saveFavoriteSeries(seriesId, title, posterPath, overview, genre, runtim
             console.error('Erro ao buscar dados do usuário:', error);
         });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtn = document.querySelector('.navbar-toggler');
+    const sidebar = document.querySelector('.sidebar');
+
+    toggleBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('active');
+    });
+});
+
+function goBack() {
+    // Esta função pode ser usada para redirecionar o usuário para a página anterior
+    // Você pode usar window.history.back() para voltar uma página na navegação do histórico
+    window.history.back();
+  }
+  
