@@ -2,6 +2,63 @@ const apiKey = 'f929634d7d1ae9a3e4b1215ec7d38336';
 const apiUrl = 'https://api.themoviedb.org/3';
 const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
 const embedderBaseUrl = 'https://embedder.net/e/';
+const firebaseUrl = 'https://cinetvplay2-56923-default-rtdb.firebaseio.com';
+
+function saveFavoriteMovie(movieId, movieTitle, posterPath, overview, genre, runtime, releaseDate) {
+    // Obtenha o ID do usuário do localStorage
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        alert("Erro: usuário não encontrado. Por favor, faça login.");
+        return;
+    }
+
+    // Verifica se o filme já está salvo como favorito no Firebase
+    fetch(`${firebaseUrl}/usuario/${userId}/favoriteMovies.json`)
+        .then(response => response.json())
+        .then(favorites => {
+            const existingMovie = favorites && Object.values(favorites).some(movie => movie.id === movieId);
+            if (existingMovie) {
+                alert('Este filme já está salvo como favorito!');
+                return;
+            }
+
+            // Dados do filme a serem salvos
+            const favoriteMovie = {
+                id: movieId,
+                title: movieTitle,
+                poster: posterPath,
+                overview: overview,
+                genre: genre,
+                runtime: runtime,
+                releaseDate: releaseDate
+            };
+
+            // Salva o filme favorito no Firebase
+            fetch(`${firebaseUrl}/usuario/${userId}/favoriteMovies.json`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(favoriteMovie)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Filme salvo como favorito no Firebase!');
+                    } else {
+                        throw new Error('Erro ao salvar no Firebase');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao salvar no Firebase:', error);
+                    alert('Ocorreu um erro ao salvar o filme como favorito.');
+                });
+        })
+        .catch(error => {
+            console.error('Erro ao verificar filmes favoritos no Firebase:', error);
+            alert('Ocorreu um erro ao verificar os filmes favoritos.');
+        });
+}
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);

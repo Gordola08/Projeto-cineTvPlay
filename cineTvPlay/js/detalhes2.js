@@ -2,7 +2,7 @@ const apiKey = 'f929634d7d1ae9a3e4b1215ec7d38336';
 const apiUrl = 'https://api.themoviedb.org/3';
 const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
 const embedderBaseUrl = 'https://embedder.net/e/series';
-const firebaseUrl = 'https://cinetvplay3-default-rtdb.firebaseio.com/usuario.json';
+const firebaseUrl = 'https://cinetvplay3-default-rtdb.firebaseio.com/usuarios.json';
 
 document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);
@@ -10,6 +10,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const type = urlParams.get("type"); // 'tv'
 
     const seriesIdElement = document.getElementById('seriesId');
+    const saveFavoriteBtn = document.getElementById('saveFavoriteBtn');
+    const toggleBtn = document.querySelector('.navbar-toggler');
+    const sidebar = document.querySelector('.sidebar');
+    const usuarioLogadoJSON = localStorage.getItem('usuarioLogado');
+    const usuarioLogado = usuarioLogadoJSON ? JSON.parse(usuarioLogadoJSON) : null;
+
     if (seriesIdElement) {
         seriesIdElement.value = seriesId;
     } else {
@@ -20,43 +26,51 @@ document.addEventListener("DOMContentLoaded", function () {
         fetchDetails(seriesId, type);
     }
 
-    const toggleBtn = document.querySelector('.navbar-toggler');
-    const sidebar = document.querySelector('.sidebar');
-
     if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', function () {
-            sidebar.classList.toggle('active');
-        });
+        toggleBtn.addEventListener('click', () => sidebar.classList.toggle('active'));
     } else {
         console.error('Elemento .navbar-toggler ou .sidebar não encontrado.');
     }
 
-    const saveFavoriteBtn = document.getElementById('saveFavoriteBtn');
     if (saveFavoriteBtn) {
-        saveFavoriteBtn.addEventListener('click', function () {
-            const seriesId = document.getElementById('seriesId').value;
-            const seriesTitle = document.getElementById('title').textContent;
-            const posterPath = document.getElementById('poster').src;
-            const overview = document.getElementById('overview').textContent;
-            const genre = document.getElementById('genre').textContent;
-            const runtime = document.getElementById('runtime').textContent;
-            const releaseDate = document.getElementById('release-date').textContent;
-            const seasonSelected = document.getElementById('seasonSelect').value;
-            const episodeId = ''; // Not specified in your request, handle as needed
-
-            saveFavoriteSeries(seriesId, seriesTitle, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeId);
+        saveFavoriteBtn.addEventListener('click', () => {
+            const seriesData = {
+                seriesId: seriesIdElement.value,
+                seriesTitle: document.getElementById('title').textContent,
+                posterPath: document.getElementById('poster').src,
+                overview: document.getElementById('overview').textContent,
+                genre: document.getElementById('genre').textContent,
+                runtime: document.getElementById('runtime').textContent,
+                releaseDate: document.getElementById('release-date').textContent,
+                seasonSelected: document.getElementById('seasonSelect').value,
+                episodeId: '' // Handle as needed
+            };
+            saveFavoriteSeries(seriesData);
         });
     } else {
         console.error('Elemento com id "saveFavoriteBtn" não encontrado.');
+    }
+
+    if (usuarioLogado) {
+        const { id: userId, fireKey } = usuarioLogado;
+
+        if (userId && fireKey) {
+            fetch(`${firebaseUrl}/${userId}.json?auth=${fireKey}`)
+                .then(response => response.ok ? response.json() : Promise.reject('Erro ao buscar usuário.'))
+                .then(data => console.log(data))
+                .catch(error => console.error("Erro ao buscar dados do usuário:", error));
+        } else {
+            console.error('userId ou fireKey está undefined.');
+        }
+    } else {
+        console.error('usuarioLogado não encontrado no localStorage.');
     }
 });
 
 async function fetchDetails(id, type) {
     try {
         const response = await fetch(`${apiUrl}/${type}/${id}?api_key=${apiKey}&language=pt-BR`);
-        if (!response.ok) {
-            throw new Error('Erro ao buscar detalhes da série.');
-        }
+        if (!response.ok) throw new Error('Erro ao buscar detalhes da série.');
         const data = await response.json();
         displayDetails(data, type);
     } catch (error) {
@@ -83,10 +97,7 @@ function displayDetails(data, type) {
         seasonSelect.appendChild(option);
     }
 
-    seasonSelect.addEventListener('change', function () {
-        fetchEpisodes(this.value);
-    });
-
+    seasonSelect.addEventListener('change', () => fetchEpisodes(seasonSelect.value));
     fetchEpisodes(1); // Carrega os episódios da primeira temporada ao carregar a página
 }
 
@@ -101,9 +112,7 @@ async function fetchEpisodes(seasonNumber) {
 
     try {
         const response = await fetch(`${apiUrl}/tv/${seriesId}/season/${seasonNumber}?api_key=${apiKey}&language=pt-BR`);
-        if (!response.ok) {
-            throw new Error('Erro ao buscar os episódios da temporada.');
-        }
+        if (!response.ok) throw new Error('Erro ao buscar os episódios da temporada.');
         const data = await response.json();
         displayEpisodes(data.episodes, seriesId);
     } catch (error) {
@@ -124,7 +133,7 @@ function displayEpisodes(episodes, seriesId) {
 
         const episodeImage = document.createElement('img');
         episodeImage.classList.add('episode-image', 'me-3');
-        episodeImage.src = `${imageBaseUrl}${episode.still_path}`;
+        episodeImage.src = episode.still_path ? `${imageBaseUrl}${episode.still_path}` : ''; // Set image if available
         episodeDiv.appendChild(episodeImage);
 
         const episodeDetails = document.createElement('div');
@@ -141,7 +150,7 @@ function displayEpisodes(episodes, seriesId) {
         episodeDetails.appendChild(episodeInfo);
 
         const watchedIcon = document.createElement('span');
-        watchedIcon.classList.add('watched-icon', 'ms-2', 'bi', 'bi-check-circle-fill'); // Bootstrap icon
+        watchedIcon.classList.add('watched-icon', 'ms-2', 'bi', 'bi-check-circle-fill');
         watchedIcon.style.display = 'none'; // Inicialmente oculto
         episodeDetails.appendChild(watchedIcon);
 
@@ -165,7 +174,6 @@ function displayEpisodes(episodes, seriesId) {
             showEpisodeModal(seriesId, episode.season_number, episode.episode_number);
         });
 
-
         episodeContainer.appendChild(episodeDiv);
     });
 }
@@ -182,198 +190,96 @@ function showEpisodeModal(seriesId, seasonNumber, episodeNumber) {
 }
 
 async function fetchEpisodeDetails(seriesId, seasonNumber, episodeNumber, modalTitle, modalContent) {
-    const apiUrl = `https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}?api_key=${apiKey}&language=pt-BR`;
-
     try {
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-            throw new Error('Erro ao buscar detalhes do episódio.');
-        }
+        const response = await fetch(`${apiUrl}/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}?api_key=${apiKey}&language=pt-BR`);
+        if (!response.ok) throw new Error('Erro ao buscar detalhes do episódio.');
         const data = await response.json();
 
         modalTitle.textContent = data.name;
-        modalContent.innerHTML = `
-            <img src="${data.still_path ? `https://image.tmdb.org/t/p/w500${data.still_path}` : ''}" alt="${data.name}" class="img-fluid mb-3">
-            <p>${data.overview}</p>
-            <p><strong>Data de Exibição:</strong> ${new Date(data.air_date).toLocaleDateString()}</p>
-            <iframe width="100%" height="315" src="${embedderBaseUrl}?id=${seriesId}&sea=${seasonNumber}&epi=${episodeNumber}" frameborder="0" allowfullscreen></iframe>
-        `;
+        modalContent.textContent = data.overview || 'Sem descrição disponível.';
     } catch (error) {
-        console.error("Erro ao buscar detalhes do episódio:", error);
-        modalContent.innerHTML = '<p>Erro ao carregar os detalhes do episódio.</p>';
+        console.error('Erro ao buscar detalhes do episódio:', error);
     }
 }
-
-function markAsWatched(seriesId, seasonNumber, episodeNumber) {
-    let watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || [];
-    const episodeKey = `${seriesId}-S${seasonNumber}E${episodeNumber}`;
-
-    if (!watchedEpisodes.includes(episodeKey)) {
-        watchedEpisodes.push(episodeKey);
-        localStorage.setItem('watchedEpisodes', JSON.stringify(watchedEpisodes));
-    }
-    
-    updateWatchedIcons();
-    saveProgressToFirebase(seriesId, seasonNumber, episodeNumber); // Save progress to Firebase
-}
-
-function isEpisodeWatched(seriesId, seasonNumber, episodeNumber) {
-    let watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || [];
-    const episodeKey = `${seriesId}-S${seasonNumber}E${episodeNumber}`;
-    return watchedEpisodes.includes(episodeKey);
-}
-
-function isEpisodeNotFinished(seriesId, seasonNumber, episodeNumber) {
-    // Placeholder function to determine if the episode is not finished
-    // You can implement your own logic to track this
-    return false;
-}
-
-function updateWatchedIcon(seriesId, seasonNumber, episodeNumber, watchedIcon, notFinishedLabel) {
-    if (isEpisodeWatched(seriesId, seasonNumber, episodeNumber)) {
-        watchedIcon.style.display = 'inline';
-        notFinishedLabel.style.display = 'none';
-    } else if (isEpisodeNotFinished(seriesId, seasonNumber, episodeNumber)) {
-        watchedIcon.style.display = 'none';
-        notFinishedLabel.style.display = 'inline';
-    } else {
-        watchedIcon.style.display = 'none';
-        notFinishedLabel.style.display = 'none';
-    }
-}
-
-function updateWatchedIcons() {
-    const episodeItems = document.querySelectorAll('.episode-item');
-    episodeItems.forEach(item => {
-        const seriesId = item.dataset.seriesId;
-        const seasonNumber = item.dataset.seasonNumber;
-        const episodeNumber = item.dataset.episodeNumber;
-        const watchedIcon = item.querySelector('.watched-icon');
-        const notFinishedLabel = item.querySelector('.not-finished');
-        
-        updateWatchedIcon(seriesId, seasonNumber, episodeNumber, watchedIcon, notFinishedLabel);
-    });
-}
-
-function updateWatchedIcon(seriesId, seasonNumber, episodeNumber, watchedIcon, notFinishedLabel) {
-    // Supondo que você tem uma forma de verificar se o episódio foi assistido, por exemplo, usando localStorage ou Firebase
-    const watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || {};
-
-    // Construa uma chave para o episódio
-    const episodeKey = `${seriesId}-${seasonNumber}-${episodeNumber}`;
-
-    // Verifique se o episódio está na lista de assistidos
-    if (watchedEpisodes[episodeKey]) {
-        // Episódio assistido
-        watchedIcon.classList.add('text-success'); // Adiciona uma classe para o ícone de assistido (ajuste conforme necessário)
-        notFinishedLabel.textContent = 'Assistido';
-        notFinishedLabel.classList.add('text-success'); // Adiciona uma classe para o rótulo de assistido
-    } else {
-        // Episódio não assistido
-        watchedIcon.classList.remove('text-success'); // Remove a classe de assistido
-        notFinishedLabel.textContent = 'Não terminou de assistir';
-        notFinishedLabel.classList.remove('text-success'); // Remove a classe de assistido
-    }
-}
-
 
 function markEpisodeAsWatched(seriesId, seasonNumber, episodeNumber) {
-    // Supondo que você está usando localStorage para armazenar episódios assistidos
-    let watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || {};
+    const usuarioLogadoJSON = localStorage.getItem('usuarioLogado');
+    const usuarioLogado = usuarioLogadoJSON ? JSON.parse(usuarioLogadoJSON) : null;
 
-    const episodeKey = `${seriesId}-${seasonNumber}-${episodeNumber}`;
-    watchedEpisodes[episodeKey] = true; // Marca o episódio como assistido
+    if (usuarioLogado) {
+        const { id: userId, fireKey } = usuarioLogado;
 
-    localStorage.setItem('watchedEpisodes', JSON.stringify(watchedEpisodes));
+        if (userId && fireKey) {
+            const episodeKey = `${seriesId}_S${seasonNumber}E${episodeNumber}`;
 
-    // Atualiza a interface para refletir o status de assistido
-    updateWatchedIcon(seriesId, seasonNumber, episodeNumber, document.querySelector('.watched-icon'), document.querySelector('.not-finished'));
-}
-
-
-function updateWatchedIcon(seriesId, seasonNumber, episodeNumber, watchedIcon, notFinishedLabel) {
-    const watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes')) || {};
-    const key = `${seriesId}_S${seasonNumber}_E${episodeNumber}`;
-
-    if (watchedEpisodes[key]) {
-        watchedIcon.style.display = 'inline';
-        notFinishedLabel.style.display = 'none';
-    } else {
-        watchedIcon.style.display = 'none';
-        notFinishedLabel.style.display = 'inline';
-    }
-}
-
-function saveFavoriteSeries(seriesId, title, posterPath, overview, genre, runtime, releaseDate, seasonSelected, episodeId) {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-        console.error('Usuário não está logado.');
-        return;
-    }
-
-    fetch(firebaseUrl)
-        .then(response => response.json())
-        .then(data => {
-            const user = Object.values(data).find(user => user.userId === userId);
-            if (user) {
-                const favorites = user.favorites || [];
-                const favoriteSeries = {
-                    seriesId,
-                    title,
-                    posterPath,
-                    overview,
-                    genre,
-                    runtime,
-                    releaseDate,
-                    seasonSelected,
-                    episodeId
-                };
-
-                favorites.push(favoriteSeries);
-
-                fetch(firebaseUrl, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        [userId]: {
-                            ...user,
-                            favorites
-                        }
-                    })
+            fetch(`${firebaseUrl}/${userId}/watchedEpisodes/${episodeKey}.json?auth=${fireKey}`, {
+                method: 'PUT',
+                body: JSON.stringify({ watched: true }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Erro ao marcar episódio como assistido.');
+                    console.log('Episódio marcado como assistido:', episodeKey);
                 })
-                    .then(response => {
-                        if (response.ok) {
-                            console.log('Série favorita salva com sucesso.');
-                        } else {
-                            console.error('Erro ao salvar série favorita.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao salvar série favorita:', error);
-                    });
-            } else {
-                console.error('Usuário não encontrado.');
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao buscar dados do usuário:', error);
-        });
+                .catch(error => console.error('Erro ao marcar episódio:', error));
+        } else {
+            console.error('userId ou fireKey está undefined.');
+        }
+    } else {
+        console.error('usuarioLogado não encontrado no localStorage.');
+    }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.querySelector('.navbar-toggler');
-    const sidebar = document.querySelector('.sidebar');
+function updateWatchedIcon(seriesId, seasonNumber, episodeNumber, watchedIcon, notFinishedLabel, finishedLabel) {
+    const usuarioLogadoJSON = localStorage.getItem('usuarioLogado');
+    const usuarioLogado = usuarioLogadoJSON ? JSON.parse(usuarioLogadoJSON) : null;
 
-    toggleBtn.addEventListener('click', function () {
-        sidebar.classList.toggle('active');
-    });
-});
+    if (usuarioLogado) {
+        const { id: userId, fireKey } = usuarioLogado;
 
-function goBack() {
-    // Esta função pode ser usada para redirecionar o usuário para a página anterior
-    // Você pode usar window.history.back() para voltar uma página na navegação do histórico
-    window.history.back();
-  }
-  
+        if (userId && fireKey) {
+            const episodeKey = `${seriesId}_S${seasonNumber}E${episodeNumber}`;
+            fetch(`${firebaseUrl}/${userId}/watchedEpisodes/${episodeKey}.json?auth=${fireKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.watched) {
+                        watchedIcon.style.display = 'inline';
+                        notFinishedLabel.style.display = 'none';
+                        finishedLabel.style.display = 'inline';
+                    } else {
+                        watchedIcon.style.display = 'none';
+                        notFinishedLabel.style.display = 'inline';
+                        finishedLabel.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Erro ao atualizar ícone de assistido:', error));
+        }
+    }
+}
+
+function saveFavoriteSeries(seriesData) {
+    const usuarioLogadoJSON = localStorage.getItem('usuarioLogado');
+    const usuarioLogado = usuarioLogadoJSON ? JSON.parse(usuarioLogadoJSON) : null;
+
+    if (usuarioLogado) {
+        const { id: userId, fireKey } = usuarioLogado;
+
+        if (userId && fireKey) {
+            const seriesKey = seriesData.seriesId; // or another unique key
+            fetch(`${firebaseUrl}/${userId}/favoriteSeries/${seriesKey}.json?auth=${fireKey}`, {
+                method: 'PUT',
+                body: JSON.stringify(seriesData),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Erro ao salvar a série favorita.');
+                    console.log('Série favorita salva:', seriesData);
+                })
+                .catch(error => console.error('Erro ao salvar série favorita:', error));
+        }
+    }
+}
