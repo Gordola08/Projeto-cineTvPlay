@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchMovies();
     moviesFetched = true;
   }
-  
+
   if (!seriesFetched) {
     fetchSeries();
     seriesFetched = true;
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchTopRated();
     topRatedFetched = true;
   }
-  
+
   fetchHighlight();  // Fetch the highlight of the day
   addSwipeToCarousel('movies-carousel');
   addSwipeToCarousel('series-carousel');
@@ -118,10 +118,10 @@ function displayContent(items, containerId, carouselId, type) {
     const isActive = index === 0 ? 'active' : '';
     const carouselItem = document.createElement('div');
     carouselItem.className = `carousel-item ${isActive}`;
-    
+
     const row = document.createElement('div');
     row.className = 'd-flex justify-content-center';
-    
+
     chunk.forEach(item => {
       const card = document.createElement('div');
       card.className = 'card me-2';
@@ -137,7 +137,7 @@ function displayContent(items, containerId, carouselId, type) {
       `;
       row.appendChild(card);
     });
-    
+
     carouselItem.appendChild(row);
     container.appendChild(carouselItem);
   });
@@ -230,81 +230,6 @@ function viewDetails(id, type) {
   window.location.href = detalhesUrl;
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  const toggleBtn = document.querySelector('.navbar-toggler');
-  const sidebar = document.querySelector('.sidebar');
-
-  toggleBtn.addEventListener('click', function () {
-    sidebar.classList.toggle('active');
-  });
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-  // Função para atualizar o status com base no activationCode
-  function updateUserStatus(activationCode) {
-      const userNameElement = document.getElementById('user-name');
-      if (userNameElement) {
-          if (activationCode) {
-              userNameElement.textContent = 'Pass';
-              userNameElement.classList.remove('text-danger');
-              userNameElement.classList.add('text-success');
-          } else {
-              userNameElement.textContent = 'Sem Pass';
-              userNameElement.classList.remove('text-success');
-              userNameElement.classList.add('text-danger');
-          }
-      }
-  }
-
-  // Verificar se há um usuário logado no localStorage
-  const usuarioLogadoJSON = localStorage.getItem('usuario_logado');
-  if (usuarioLogadoJSON) {
-      const usuarioLogado = JSON.parse(usuarioLogadoJSON);
-      console.log('Usuário logado:', usuarioLogado);
-
-      // Configurar o avatar com base no localStorage
-      const avatarElement = document.getElementById('avatarUsuario');
-      if (avatarElement && usuarioLogado.user && usuarioLogado.user.avatar) {
-          avatarElement.src = usuarioLogado.user.avatar;
-          avatarElement.alt = "Foto de Perfil";
-          avatarElement.classList.add('rounded-circle');
-          avatarElement.width = 75; // Tamanho do avatar
-      }
-
-      // Obter o `activationCode` do Firebase
-      const userId = localStorage.getItem('userId'); // Supondo que você tenha o userId no localStorage
-      if (userId) {
-          fetch(`https://cinetvplay3-default-rtdb.firebaseio.com/usuarios/${userId}.json?auth=${fireKey}`)
-              .then(response => {
-                  if (!response.ok) {
-                      throw new Error('Não foi possível obter os dados do usuário do Firebase.');
-                  }
-                  return response.json();
-              })
-              .then(data => {
-                  if (data && data.activationCode) {
-                      updateUserStatus(data.activationCode);
-                  } else {
-                      console.error('activationCode não encontrado para o usuário no Firebase.');
-                      updateUserStatus(null);
-                  }
-              })
-              .catch(error => {
-                  console.error('Erro ao buscar activationCode no Firebase:', error);
-                  updateUserStatus(null);
-              });
-      } else {
-          console.log('Nenhum ID de usuário encontrado no localStorage.');
-          updateUserStatus(null);
-      }
-  } else {
-      console.log('Nenhum usuário logado encontrado no localStorage.');
-      updateUserStatus(null);
-  }
-});
-
- // Chama a função para configurar o offcanvas
-document.addEventListener('DOMContentLoaded', setupOffcanvas);
 
 document.addEventListener("DOMContentLoaded", function () {
   const toggleBtn = document.querySelector('.navbar-toggler');
@@ -314,3 +239,15 @@ document.addEventListener("DOMContentLoaded", function () {
     sidebar.classList.toggle('active');
   });
 });
+
+// Efeito de neve caindo
+const snowContainer = document.getElementById('snow-container');
+for (let i = 0; i < 50; i++) {
+  const snowflake = document.createElement('div');
+  snowflake.classList.add('snowflake');
+  snowflake.textContent = '❄';
+  snowflake.style.left = Math.random() * 100 + 'vw';
+  snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+  snowflake.style.opacity = Math.random();
+  snowContainer.appendChild(snowflake);
+}

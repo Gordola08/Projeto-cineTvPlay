@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Perfil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #141414;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .profile-preview {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .profile-preview img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="text-center">Criar Perfil</h1>
+        <form id="createProfileForm">
+            <div class="mb-3">
+                <label for="profileName" class="form-label">Nome do Perfil</label>
+                <input type="text" id="profileName" class="form-control" placeholder="Digite o nome do perfil" required>
+            </div>
+            <div class="mb-3">
+                <label for="profileImage" class="form-label">Escolha uma Imagem de Avatar</label>
+                <input type="file" id="profileImage" class="form-control" accept="image/*" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Salvar Perfil</button>
+        </form>
+
+        <!-- Pré-visualização do Perfil -->
+        <div class="profile-preview mt-4">
+            <h2>Pré-visualização</h2>
+            <img id="previewImage" src="https://via.placeholder.com/120" alt="Avatar">
+            <p id="previewName">Nome do Perfil</p>
+        </div>
+    </div>
+
+    <script>
+        // Verifica se o usuário está logado
+        const usuarioLogado = localStorage.getItem('usuario_logado');
+        if (!usuarioLogado) {
+            alert('Usuário não logado. Por favor, faça login.');
+            window.location.href = 'login.html'; // Redireciona para a página de login se o usuário não estiver logado
+        }
+
+        // Obtém o ID do usuário e o fireKey
+        const user = JSON.parse(usuarioLogado);
+        const userId = user.key; // A chave do usuário está em 'key'
+        const fireKey = user.fireKey; // O fireKey deve estar armazenado no localStorage ou em outro lugar
+
+        const form = document.getElementById('createProfileForm');
+        const profileNameInput = document.getElementById('profileName');
+        const profileImageInput = document.getElementById('profileImage');
+        const previewName = document.getElementById('previewName');
+        const previewImage = document.getElementById('previewImage');
+
+        // Atualizar a pré-visualização da imagem
+        profileImageInput.addEventListener('change', () => {
+            const file = profileImageInput.files[0];
+            if (file) {
+                previewImage.src = URL.createObjectURL(file);
+            }
+        });
+
+        // Atualizar a pré-visualização do nome
+        profileNameInput.addEventListener('input', () => {
+            previewName.textContent = profileNameInput.value || 'Nome do Perfil';
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = profileNameInput.value;
+            const file = profileImageInput.files[0];
+
+            if (!name || !file) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            // Reduzir o tamanho da imagem antes de salvar
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const newProfile = {
+                    name: name,
+                    avatar: reader.result, // Armazena a imagem em base64
+                };
+
+                try {
+                    // Primeiro, buscamos o array de perfis já existente no Firebase
+                    const fetchResponse = await fetch(
+                        `https://cinetvplay3-default-rtdb.firebaseio.com/usuario/${userId}/perfil.json?auth=${fireKey}`
+                    );
+                    const existingProfiles = await fetchResponse.json();
+
+                    // Verifica se já existem perfis salvos, senão inicializa um array vazio
+                    const updatedProfiles = Array.isArray(existingProfiles) ? [...existingProfiles, newProfile] : [newProfile];
+
+                    // Envia o array atualizado para o Firebase
+                    const response = await fetch(
+                        `https://cinetvplay3-default-rtdb.firebaseio.com/usuario/${userId}/perfil.json?auth=${fireKey}`,
+                        {
+                            method: 'PUT', // Usamos PUT para substituir todo o array
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(updatedProfiles),
+                        }
+                    );
+
+                    if (response.ok) {
+                        // Salva os perfis localmente no localStorage
+                        localStorage.setItem('perfil', JSON.stringify(updatedProfiles));
+
+                        alert('Perfil criado com sucesso!');
+                        window.location.href = 'contas.html'; // Redireciona para outra página após salvar
+                    } else {
+                        throw new Error('Erro ao salvar perfil no Firebase.');
+                    }
+                } catch (error) {
+                    console.error('Erro ao salvar no Firebase:', error);
+                    alert('Ocorreu um erro ao salvar o perfil. Tente novamente.');
+                }
+            };
+            reader.readAsDataURL(file); // Lê a imagem como base64
+        });
+    </script>
+</body>
+
+</html>

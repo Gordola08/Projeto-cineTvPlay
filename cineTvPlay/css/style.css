@@ -318,3 +318,21 @@ footer {
   border: none; /* Remove a borda da imagem */
   display: block; /* Remove o espaço abaixo da imagem */
 }
+.snowflake {
+  color: #00ff99; /* Cor neon futurista para flocos de neve */
+  font-size: 1.5rem;
+  position: fixed;
+  top: -10%;
+  z-index: 9999;
+  pointer-events: none;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  0% {
+      transform: translateY(-100px) translateX(0);
+  }
+  100% {
+      transform: translateY(100vh) translateX(20px);
+  }
+}

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seleção de Conta</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #141414;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .profile-container {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .profile {
+      margin: 15px;
+      cursor: pointer;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .profile:hover {
+      transform: scale(1.1);
+    }
+
+    .profile img {
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+    }
+
+    .profile-name {
+      margin-top: 10px;
+      font-size: 1.2rem;
+    }
+
+    .manage-profiles a {
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="profile-container">
+    <h1>Quem está assistindo?</h1>
+    <div id="spinner" class="spinner" style="display: none;">
+      <div class="spinner-border text-light" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+    </div>
+    <div id="profiles" class="d-flex flex-wrap justify-content-center">
+      <!-- Perfis serão adicionados dinamicamente aqui -->
+    </div>
+  </div>
+
+  <div class="manage-profiles">
+    <a href="criar.html" class="text-decoration-none text-muted">Gerenciar Perfis</a>
+  </div>
+
+  <script>
+    // Função assíncrona para carregar perfis
+    async function loadProfiles() {
+      const usuarioLogado = localStorage.getItem("usuario_logado");
+
+      if (!usuarioLogado) {
+        alert("Usuário não logado. Redirecionando para login.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      // Parse do usuário logado
+      const user = JSON.parse(usuarioLogado);
+      const userId = user.key; // A chave do usuário está em 'key'
+      const fireKey = user.fireKey; // O fireKey deve estar armazenado no localStorage ou em outro lugar
+
+      console.log("ID do Usuário:", userId);
+      console.log("FireKey do Usuário:", fireKey);
+
+      // URL do Firebase para buscar o perfil
+      const firebaseUrl = `https://cinetvplay3-default-rtdb.firebaseio.com/usuario/${userId}/perfil.json?auth=${fireKey}`;
+
+      const spinner = document.getElementById("spinner");
+
+      try {
+        // Exibe o spinner enquanto carrega os dados
+        spinner.style.display = "flex";
+
+        // Busca os dados do perfil do Firebase
+        const response = await fetch(firebaseUrl);
+        const data = await response.json();
+
+        // Esconde o spinner após carregar os dados
+        spinner.style.display = "none";
+
+        // Se não houver dados de perfil, exibe mensagem para criar perfil
+        if (!data || Object.keys(data).length === 0) {
+          document.getElementById("profiles").innerHTML = `
+        <p>Por favor, crie seu perfil para assistir.</p>
+        <a href="criar.html" class="btn btn-primary mt-3">Criar Perfil</a>`;
+          return;
+        }
+
+        // Exibe os perfis
+        const profilesContainer = document.getElementById("profiles");
+        profilesContainer.innerHTML = ""; // Limpa os perfis anteriores
+
+        // Itera sobre os perfis e cria os elementos dinamicamente
+        for (const [profileId, profile] of Object.entries(data)) {
+          const profileImage = profile.avatar || 'https://via.placeholder.com/120'; // Imagem padrão se não tiver avatar
+          const profileName = profile.name || 'Nome não disponível'; // Nome padrão se não tiver nome
+
+          // Cria o HTML do perfil
+          const profileHtml = document.createElement("div");
+          profileHtml.classList.add("profile", "text-center");
+          profileHtml.innerHTML = `
+        <img src="${profileImage}" alt="${profileName}" class="rounded-circle" width="120" style="cursor: pointer;">
+        <div class="profile-name">${profileName}</div>
+      `;
+
+          // Adiciona evento de clique para redirecionar o usuário e salvar avatar e nome no localStorage
+          profileHtml.addEventListener("click", () => {
+            // Salva apenas o avatar e o nome do perfil selecionado no localStorage
+            const selectedProfile = {
+              avatar: profile.avatar,
+              name: profile.name,
+            };
+            localStorage.setItem("perfil_selecionado", JSON.stringify(selectedProfile));
+
+            // Redirecionar para outra página, ex: "player.html"
+            window.location.href = `../index.html?profileId=${profileId}`;
+          });
+
+          profilesContainer.appendChild(profileHtml);
+        }
+      } catch (error) {
+        // Caso ocorra algum erro, exibe uma mensagem de erro
+        console.error("Erro ao carregar perfil:", error);
+        document.getElementById("profiles").innerHTML = "<p>Erro ao carregar perfil. Verifique sua conexão e tente novamente.</p>";
+      }
+    }
+
+    // Chama a função de carregamento de perfis quando o conteúdo da página estiver totalmente carregado
+    document.addEventListener("DOMContentLoaded", loadProfiles);
+
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -256,37 +256,47 @@ function setupPagination() {
 }
 
 function setupCategorySelection() {
+  // Configura o evento de clique para os links de categoria
   document.querySelectorAll('.category-link').forEach(link => {
-    link.addEventListener('click', function(event) {
-      event.preventDefault(); // Evita o comportamento padrão do link
+    link.addEventListener('click', async function(event) {
+      event.preventDefault(); // Impede o comportamento padrão do link
 
-      const categoryId = this.getAttribute('data-category'); // Pega o ID da categoria
+      const categoryId = this.getAttribute('data-category'); // Obtém o ID da categoria
+
       console.log('Categoria selecionada:', categoryId);
 
       // Carrega os filmes da categoria selecionada
-      loadMoviesByCategory(categoryId);
+      await loadMoviesByCategory(categoryId);
 
-      // Remove a tela preta (modal-backdrop) e restaura o corpo da página
+      // Fecha o offcanvas após a seleção da categoria
       const offcanvasElement = document.getElementById('categoryOffcanvas');
-      if (offcanvasElement) {
-        const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
-        if (offcanvas) {
-          offcanvas.hide();
-        }
+      const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+      if (offcanvas) {
+        offcanvas.hide();
       }
 
-      // Remove a tela preta (modal-backdrop) e restaura o corpo da página
+      // Remove a tela preta (modal-backdrop) e restaura o estilo do corpo da página
       const backdrop = document.querySelector('.offcanvas-backdrop');
       if (backdrop) {
         backdrop.remove();
       }
 
-      // Remove o estilo de overflow do corpo
       document.body.classList.remove('offcanvas-open');
       document.body.style.overflow = ''; // Garante que a rolagem esteja ativada
     });
   });
 }
+
+// A função para carregar filmes por categoria
+async function loadMoviesByCategory(categoryId) {
+  currentPage = 1; // Reseta a página ao mudar de categoria
+  totalPages = 1; // Reseta o total de páginas
+  await fetchMovies(categoryId); // Recarrega os filmes da categoria
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setupCategorySelection(); // Configura a seleção de categoria ao carregar a página
+});
 
 function setupOffcanvas() {
   document.querySelectorAll('.category-link').forEach(link => {
@@ -325,41 +335,37 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
- // Verificar se há um usuário logado
- const usuarioLogadoJSON = localStorage.getItem('usuario_logado');
- if (usuarioLogadoJSON) {
-   const usuarioLogado = JSON.parse(usuarioLogadoJSON);
-   console.log('Usuário logado:', usuarioLogado);
+  // Efeito de neve caindo
+const snowContainer = document.getElementById('snow-container');
+for (let i = 0; i < 50; i++) {
+  const snowflake = document.createElement('div');
+  snowflake.classList.add('snowflake');
+  snowflake.textContent = '❄';
+  snowflake.style.left = Math.random() * 100 + 'vw';
+  snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+  snowflake.style.opacity = Math.random();
+  snowContainer.appendChild(snowflake);
+}
 
-   const avatarElement = document.getElementById('avatarUsuario');
-   if (avatarElement) {
-     avatarElement.src = usuarioLogado.user.avatar;
-     avatarElement.alt = "Foto de Perfil";
-     avatarElement.classList.add('rounded-circle');
-     avatarElement.width = 75; // Tamanho do avatar
-   }
- } else {
-   console.log('Nenhum usuário está logado.');
- }
+function updateCardOverlayEventListeners() {
+  const cards = document.querySelectorAll('.card');
 
-  // Verificar se há um usuário logado
-  if (usuarioLogadoJSON) {
-    const usuarioLogado = JSON.parse(usuarioLogadoJSON);
-    console.log('Usuário logado:', usuarioLogado);
-
-    const userNameElement = document.getElementById('user-name');
-    if (usuarioLogado.user.Pess) {
-      userNameElement.textContent = 'Pass';
-      userNameElement.classList.remove('text-danger');
-      userNameElement.classList.add('text-success');
+  cards.forEach(card => {
+    if (isMobile()) {
+      card.addEventListener('touchstart', showOverlay);
+      card.addEventListener('touchend', hideOverlay);
     } else {
-      userNameElement.textContent = 'Sem Pess';
-      userNameElement.classList.remove('text-success');
-      userNameElement.classList.add('text-danger');
+      card.removeEventListener('touchstart', showOverlay);
+      card.removeEventListener('touchend', hideOverlay);
     }
-  } else {
-    console.log('Nenhum usuário está logado.');
-    const userNameElement = document.getElementById('user-name');
-    userNameElement.textContent = 'Sem Pess';
-    userNameElement.classList.add('text-danger');
-  }
+  });
+}
+
+function isMobile() {
+  return window.innerWidth <= 768; // Check if the screen is mobile-sized
+}
+
+window.addEventListener('resize', updateCardOverlayEventListeners);
+
+// Call it initially to set the right event listeners
+updateCardOverlayEventListeners();

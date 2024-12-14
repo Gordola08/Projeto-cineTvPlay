@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         // Redireciona para a página principal
                         setTimeout(() => {
-                            window.location.href = 'cinetv/index.html';
+                            window.location.href = 'cinetv/contas/contas.html';
                         }, 2000);
                         return;
                     }
